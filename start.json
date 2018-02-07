@@ -1,0 +1,20 @@
+{
+    "name" : "jims",
+    "starting widget" : "main",
+    "init-scripts" : [
+	"init_jims"
+    ],
+    "pre-load" : [
+	{
+            "file" : "bad-guy.lua",
+            "type" : "lua"
+        },
+	{
+            "file" : "jims.lua",
+            "type" : "lua"
+        }
+    ],
+    "main" : {
+        "<type>" : "jims"
+    }
+}
