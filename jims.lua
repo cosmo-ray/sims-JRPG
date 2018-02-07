@@ -47,6 +47,15 @@ function create_jims(entity)
 
    local statueBar = Canvas.wrapp(menu_cnt.ent.entries[2])
    local ret = conntainer:new_wid()
-   statueBar:new_text(10, 10, "life")
+   statueBar:new_text(1, 1, Entity.new_string("life"))
+   local rect = Entity.new_array()
+   rect[0] = Pos.new(52, 12).ent;
+   rect[1] = "rgba: 0 0 0 255";
+   statueBar:new_rect(49, 4, rect)
+   rect = Entity.new_array()
+   rect[0] = Pos.new(50, 10).ent;
+   rect[1] = "rgba: 255 255 255 255";
+   print(rect)
+   statueBar:new_rect(50, 5, rect)
    return ret;
 end
