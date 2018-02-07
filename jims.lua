@@ -1,6 +1,8 @@
 function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
    Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
+   Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
+   --Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
 end
 
 function jims_action(entity, eve, arg)
@@ -18,18 +20,32 @@ function jims_action(entity, eve, arg)
    return YEVE_NOTHANDLE
 end
 
+function swapToHouse(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+
+   print("House time", main)
+   mainMenu.entries[0].entries[0].text = "fight now"
+   mainMenu.entries[0].entries[0].action = "jims.fight_time"
+   ywReplaceEntry(main, 0, Entity.wrapp(main).mainScreen:cent())
+   return YEVE_ACTION
+end
+
 function swapToFight(entity)
-    local main = ywCntWidgetFather(ywCntWidgetFather(entity))
-    print("combat time", main)
-    ywReplaceEntry(main, 0, Entity.wrapp(main).fightScreen:cent())
-    return YEVE_ACTION
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+
+   print("combat time", main)
+   mainMenu.entries[0].entries[0].text = "go back home"
+   mainMenu.entries[0].entries[0].action = "jims.house_time"
+   ywReplaceEntry(main, 0, Entity.wrapp(main).fightScreen:cent())
+   return YEVE_ACTION
 end
 
 function create_jims(entity)
    local conntainer = Container.init_entity(entity, "horizontal")
    local ent = conntainer.ent
 
-   print(entity)
    Entity.new_func("jims_action", ent, "action")
    ent.background = "rgba: 127 127 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
@@ -52,8 +68,6 @@ function create_jims(entity)
 
    local mn = menu_cnt.ent.entries[0]
    mn.entries[0] = {}
-   mn.entries[0].text = "fight-now"
-   mn.entries[0].action = "jims.fight_time"
    mn.entries[1] = {}
    mn.entries[1].text = "quit"
    mn.entries[1].action = "FinishGame"
@@ -71,5 +85,7 @@ function create_jims(entity)
    statueBar:new_rect(50, 5, rect)
 
    mainCanvas:new_img(0, 0, "Male_basic.png")
-   return conntainer:new_wid()
+   local ret = conntainer:new_wid()
+   swapToHouse(mn:cent())
+   return ret
 end
