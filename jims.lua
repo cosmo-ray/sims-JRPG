@@ -47,11 +47,11 @@ function pushBar(statueBar, name)
    local bypos = 4 + 20 * statueBar.ent.nbBar
 
    statueBar:new_text(1, bypos, Entity.new_string(name))
-   rect[0] = Pos.new(52, 12).ent;
+   rect[0] = Pos.new(102, 12).ent;
    rect[1] = "rgba: 0 0 0 255";
    statueBar:new_rect(69, bypos + 1, rect)
    rect = Entity.new_array()
-   rect[0] = Pos.new(50, 10).ent;
+   rect[0] = Pos.new(100, 10).ent;
    rect[1] = "rgba: 255 255 255 255";
    statueBar:new_rect(70, bypos + 2, rect)
    statueBar.ent.nbBar = statueBar.ent.nbBar + 1
@@ -107,6 +107,8 @@ function create_jims(entity)
    pushBar(statueBar, "hygien")
    pushBar(statueBar, "fun")
    pushBar(statueBar, "energy")
+   pushBar(statueBar, "hunger")
+   pushBar(statueBar, "Bladder")
    mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
    local ret = conntainer:new_wid()
    local mn = menu_cnt.ent.entries[0]
