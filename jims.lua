@@ -32,14 +32,14 @@ function swapToHouse(entity)
    return YEVE_ACTION
 end
 
-function init_room(entity,mainCanvas)
+function init_room(ent,mainCanvas)
     --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-    mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90))
-    mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61))
-    mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44))
-    mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
-    mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90))
-    mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52))
+    ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90))
+    ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61))
+    ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44))
+    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
+    ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90))
+    ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52))
 end
 
 function setMenuAction(mainMenu, idx, text, action)
@@ -88,8 +88,8 @@ function swapToFight(entity)
 end
 
 function create_jims(entity)
-   local conntainer = Container.init_entity(entity, "horizontal")
-   local ent = conntainer.ent
+   local container = Container.init_entity(entity, "horizontal")
+   local ent = container.ent
 
    Entity.new_func("jims_action", ent, "action")
    ent.background = "rgba: 127 127 127 255"
@@ -120,9 +120,9 @@ function create_jims(entity)
    pushBar(statueBar, "hunger")
    pushBar(statueBar, "Bladder")]]
    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-   local ret = conntainer:new_wid()
+   local ret = container:new_wid()
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
-   init_room(entity, mainCanvas)
+   init_room(ent, mainCanvas)
    return ret
 end
