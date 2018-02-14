@@ -152,7 +152,7 @@ function create_jims(entity)
    pushBar(statueBar, ent.guy, "hunger")
    pushBar(statueBar, ent.guy, "bladder")
    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-   local ret = conntainer:new_wid()
+   local ret = container:new_wid()
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
    init_room(ent, mainCanvas)
