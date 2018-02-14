@@ -1,9 +1,11 @@
 function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
+
    Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
    Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
+
 end
 
 function jims_action(entity, eve, arg)
@@ -68,9 +70,11 @@ function swapToHouse(entity)
    setMenuAction(mainMenu, 4, "quit", "FinishGame")
 
    Entity.wrapp(main).guy.movable = 1
+
    ywReplaceEntry(main, 0, Entity.wrapp(main).mainScreen:cent())
    return YEVE_ACTION
 end
+
 
 function init_furniture(main)
    main.furniture = {}
@@ -91,6 +95,7 @@ function init_room(ent, mainCanvas)
     ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
     ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
     ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
+
 end
 
 function setMenuAction(mainMenu, idx, text, action)
@@ -104,6 +109,7 @@ function cleanMenuAction(mainMenu)
 end
 
 function pushBar(statueBar, guy, name)
+
    local rect = Entity.new_array()
    local bypos = 4 + 20 * statueBar.ent.nbBar
 
@@ -149,6 +155,7 @@ function swapToFight(entity)
    cleanMenuAction(mainMenu)
    setMenuAction(mainMenu, 0, "work", "jims.attack")
    jimsFSAddGuy(main, Canvas.wrapp(fScreen), widSize, badGuy)
+
    Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
 end
@@ -199,6 +206,7 @@ function create_jims(entity)
    ent.move.up_down = 0
    ent.move.left_right = 0
    Entity.new_func("jims_action", ent, "action")
+
    ent.background = "rgba: 255 255 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
    local fightCanvas = Canvas.new_entity(entity, "fightScreen")
@@ -241,5 +249,6 @@ function create_jims(entity)
    init_furniture(ent)
    init_room(ent, mainCanvas)
    ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png", Rect.new(25, 25, 50, 50)):cent()
+
    return ret
 end
