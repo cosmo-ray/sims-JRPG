@@ -7,7 +7,8 @@ function init_jims(mod)
 end
 
 function jims_action(entity, eve, arg)
-   local eve = Event.wrapp(eve)
+   entity = Entity.wrapp(entity)
+   eve = Event.wrapp(eve)
 
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
@@ -17,6 +18,9 @@ function jims_action(entity, eve, arg)
 	 end
       end
       eve = eve:next()
+   end
+   if doAnimation(entity) then
+      return YEVE_ACTION
    end
    return YEVE_NOTHANDLE
 end
@@ -52,7 +56,7 @@ function cleanMenuAction(mainMenu)
    mainMenu.entries[0].entries = {}
 end
 
-function pushBar(statueBar, name)
+function pushBar(statueBar, guy, name)
    local rect = Entity.new_array()
    local bypos = 4 + 20 * statueBar.ent.nbBar
 
@@ -61,10 +65,24 @@ function pushBar(statueBar, name)
    rect[1] = "rgba: 0 0 0 255";
    statueBar:new_rect(69, bypos + 1, rect)
    rect = Entity.new_array()
-   rect[0] = Pos.new(100, 10).ent;
+   rect[0] = Pos.new(guy[name]:to_int(), 10).ent;
    rect[1] = "rgba: 255 255 255 255";
-   statueBar:new_rect(70, bypos + 2, rect)
+   local goodBar = statueBar:new_rect(70, bypos + 2, rect)
+   guy.bars[name] = goodBar:cent()
    statueBar.ent.nbBar = statueBar.ent.nbBar + 1
+end
+
+function statAdd(guy, name, val)
+   local statVal = guy[name]:to_int()
+
+   statVal = statVal + val
+   if (statVal > 100) then
+      statVal = 100
+   elseif statVal < 0 then
+      statVal = 0
+   end
+   guy[name] = statVal
+   CanvasObj.wrapp(guy.bars[name]):force_size(Pos.new(statVal, 10))
 end
 
 function swapToFight(entity)
@@ -91,6 +109,19 @@ function create_jims(entity)
    local container = Container.init_entity(entity, "horizontal")
    local ent = container.ent
 
+   -- create good guy
+   ent.guy = {}
+   ent.guy.bars = {}
+   ent.guy.money = 27
+   ent.guy.hygien = 100
+   ent.guy.fun = 10
+   ent.guy.energy = 100
+   ent.guy.hunger = 100
+   ent.guy.bladder = 100
+   ent.guy.attack = Entity.new_func("attackTheWork")
+
+   -- create widget
+   ent["turn-length"] = 10000
    Entity.new_func("jims_action", ent, "action")
    ent.background = "rgba: 127 127 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
@@ -98,7 +129,8 @@ function create_jims(entity)
    ent.entries[0] = mainCanvas.ent  -- game screen
    ent.entries[0].size = 70
    ent.event_forwarding = "under mouse"
-   local menu_cnt = Container.new_entity("vertical") -- bottom box
+   -- bottom box
+   local menu_cnt = Container.new_entity("vertical", entity, "menuCnt")
    ent.entries[1] = menu_cnt.ent
    menu_cnt.ent.background = "rgba: 127 127 255 255"
    menu_cnt.ent.entries[0] = Menu:new_entity().ent
@@ -114,13 +146,13 @@ function create_jims(entity)
    local statueBar = Canvas.wrapp(menu_cnt.ent.entries[2])
 
    statueBar.ent.nbBar = 0
-   pushBar(statueBar, "hygien")
-   pushBar(statueBar, "fun")
-   pushBar(statueBar, "energy")
-   pushBar(statueBar, "hunger")
-   pushBar(statueBar, "Bladder")
+   pushBar(statueBar, ent.guy, "hygien")
+   pushBar(statueBar, ent.guy, "fun")
+   pushBar(statueBar, ent.guy, "energy")
+   pushBar(statueBar, ent.guy, "hunger")
+   pushBar(statueBar, ent.guy, "bladder")
    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-   local ret = container:new_wid()
+   local ret = conntainer:new_wid()
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
    init_room(ent, mainCanvas)

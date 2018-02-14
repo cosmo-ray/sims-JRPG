@@ -6,6 +6,10 @@
     ],
     "pre-load" : [
 	{
+            "file" : "animation.lua",
+            "type" : "lua"
+        },
+	{
             "file" : "bad-guy.lua",
             "type" : "lua"
         },
