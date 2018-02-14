@@ -1,19 +1,3 @@
-function jimsFSAttackGuy(entity)
-   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
-   local main = ywCntWidgetFather(mainMenu:cent())
-   local fScreen = Entity.wrapp(main).fightScreen
-   local enemyLife = fScreen.badGuy.life:to_int()
-
-   enemyLife = enemyLife - 10
-   fScreen.badGuy.life = enemyLife
-   CanvasObj.wrapp(fScreen.objs[2]):force_size(Pos.new(enemyLife, 10))
-   if enemyLife <= 0 then
-      swapToHouse(entity)
-      return
-   end
-   fScreen.badGuy.attack(fScreen.badGuy:cent())
-end
-
 function jimsFSAddGuy(main, fScreen, widSize, badGuy)
    local rect = Entity.new_array()
 
@@ -38,6 +22,71 @@ function jimsFSAddGuy(main, fScreen, widSize, badGuy)
    bar:move(pos)
 end
 
-function attackOfTheWork(badGuy)
-   print("it's time to rise !")
+function dealDmg(fScreen, dmg)
+   local enemyLife = fScreen.badGuy.life:to_int()
+
+   enemyLife = enemyLife - dmg
+   fScreen.badGuy.life = enemyLife
+   CanvasObj.wrapp(fScreen.objs[2]):force_size(Pos.new(enemyLife, 10))
+   if enemyLife <= 0 then
+      return true
+   end
+   return false
+end
+
+function jimsFSAttackGuy(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local fScreen = Entity.wrapp(main).fightScreen
+
+   if main.guy.attack(main:cent(), main.guy:cent(),
+		      fScreen.badGuy:cent()) == Y_TRUE then
+      main.guy.money = main.guy.money + 10
+      update_money(main)
+      swapToHouse(entity)
+      return
+   end
+
+   startAnimation(main:cent(), Entity.new_func("workAttackAnim"))
+end
+
+function workAttackAnim(main, anim)
+   anim = Entity.wrapp(anim)
+   main = Entity.wrapp(main)
+
+   print("wooo woo")
+   if anim.animation_frame < 1 then
+      local fScreen = main.fightScreen
+
+      fScreen.badGuy.attack(main:cent(), fScreen.badGuy:cent())
+      print("init time !")
+   end
+
+   if anim.animation_frame > 10 then
+      endAnimation(main, anim)
+      if main.guy.hygien <= 0 then
+	 print("dead")
+	 swapToHouse(main.menuCnt.entries[0]:cent())
+      end
+      return
+   end
+end
+
+function attackOfTheWork(main, badGuy)
+   main = Entity.wrapp(main)
+
+   statAdd(main.guy, "hygien", -5)
+end
+
+function attackTheWork(main, goodGuy, badGuy)
+   goodGuy = Entity.wrapp(goodGuy)
+   badGuy = Entity.wrapp(badGuy)
+   main = Entity.wrapp(main)
+
+   statAdd(main.guy, "energy", -5)
+   if main.guy.energy > 0 and dealDmg(main.fightScreen, 10) then
+      return Y_TRUE
+   end
+   return Y_FALSE
+
 end
