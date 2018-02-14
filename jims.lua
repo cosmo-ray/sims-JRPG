@@ -1,6 +1,6 @@
 function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
-   --Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
+   Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
    --Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
@@ -52,7 +52,7 @@ function cleanMenuAction(mainMenu)
    mainMenu.entries[0].entries = {}
 end
 
---[[function pushBar(statueBar, name)
+function pushBar(statueBar, name)
    local rect = Entity.new_array()
    local bypos = 4 + 20 * statueBar.ent.nbBar
 
@@ -65,7 +65,7 @@ end
    rect[1] = "rgba: 255 255 255 255";
    statueBar:new_rect(70, bypos + 2, rect)
    statueBar.ent.nbBar = statueBar.ent.nbBar + 1
-end]]
+end
 
 function swapToFight(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
@@ -114,11 +114,11 @@ function create_jims(entity)
    local statueBar = Canvas.wrapp(menu_cnt.ent.entries[2])
 
    statueBar.ent.nbBar = 0
-   --[[pushBar(statueBar, "hygien")
+   pushBar(statueBar, "hygien")
    pushBar(statueBar, "fun")
    pushBar(statueBar, "energy")
    pushBar(statueBar, "hunger")
-   pushBar(statueBar, "Bladder")]]
+   pushBar(statueBar, "Bladder")
    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
    local ret = container:new_wid()
    local mn = menu_cnt.ent.entries[0]
