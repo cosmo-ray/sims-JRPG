@@ -2,22 +2,40 @@ function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
    Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
+   Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
-   --Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
 end
 
 function jims_action(entity, eve, arg)
    entity = Entity.wrapp(entity)
    eve = Event.wrapp(eve)
+   local move = entity.move
+   local guy = entity.guy
 
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
 	 if eve:key() == Y_ESC_KEY then
 	    yFinishGame()
 	    return YEVE_ACTION
-	 end
+	 elseif eve:is_key_up() then move.up_down = -1
+         elseif eve:is_key_down() then move.up_down = 1
+         elseif eve:is_key_left() then move.left_right = -1
+         elseif eve:is_key_right() then move.left_right = 1
+         end
+      elseif eve:type() == YKEY_UP then
+         if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
+         elseif eve:is_key_left() or eve:is_key_right() then
+	    move.left_right = 0
+         end
+
       end
       eve = eve:next()
+   end
+   if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
+				     move.left_right ~= Entity.new_int(0)) then
+      CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
+						      5 * move.up_down))
+      return YEVE_ACTION
    end
    if doAnimation(entity) then
       return YEVE_ACTION
@@ -25,25 +43,54 @@ function jims_action(entity, eve, arg)
    return YEVE_NOTHANDLE
 end
 
+function sleep(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+
+   statAdd(main.guy, "energy", 100)
+end
+
+function wash_yourself(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+
+   statAdd(main.guy, "hygien", 100)
+end
+
 function swapToHouse(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
    local main = ywCntWidgetFather(mainMenu:cent())
 
    setMenuAction(mainMenu, 0, "fight now", "jims.fight_time")
-   setMenuAction(mainMenu, 1, "quit", "FinishGame")
+   setMenuAction(mainMenu, 1, "buy stuff", "jims.inventary_time")
+   setMenuAction(mainMenu, 2, "sleep", Entity.new_func("sleep"))
+   setMenuAction(mainMenu, 3, "wash yourself", Entity.new_func("wash_yourself"))
+   setMenuAction(mainMenu, 4, "quit", "FinishGame")
 
+   Entity.wrapp(main).guy.movable = 1
    ywReplaceEntry(main, 0, Entity.wrapp(main).mainScreen:cent())
    return YEVE_ACTION
 end
 
-function init_room(ent,mainCanvas)
-    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-    ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90))
-    ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61))
-    ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44))
+function init_furniture(main)
+   main.furniture = {}
+   main.furniture.beds = {}
+   main.furniture.beds[0] = {}
+   main.furniture.beds[0].rect = Rect.new(416, 102, 64, 90):cent()
+   main.furniture.beds[1] = {}
+   main.furniture.beds[1].rect = Rect.new(416, 152, 64, 90):cent()
+end
+
+function init_room(ent, mainCanvas)
+   --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
+   -- Rect.new(416, 102, 64, 90)
+   ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png",
+				ent.furniture.beds[0].rect):cent()
+    ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
+    ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
     ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
-    ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90))
-    ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52))
+    ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
+    ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
 end
 
 function setMenuAction(mainMenu, idx, text, action)
@@ -102,7 +149,33 @@ function swapToFight(entity)
    cleanMenuAction(mainMenu)
    setMenuAction(mainMenu, 0, "work", "jims.attack")
    jimsFSAddGuy(main, Canvas.wrapp(fScreen), widSize, badGuy)
+   Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
+end
+
+function swapToInv(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+   local invScreen = Entity.wrapp(main).invScreen
+   local widSize = Entity.wrapp(main).mainScreen["wid-pix"]
+
+   -- init combat
+   ywReplaceEntry(main, 0, invScreen:cent())
+   cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 0, "buy", Entity.new_func("inv_buy"))
+   setMenuAction(mainMenu, 1, "go home", "jims.house_time")
+   Canvas.wrapp(invScreen):new_img(0, 0, "open_tileset.png", Rect.new(0, 97, 32, 61))
+   Entity.wrapp(main).guy.movable = 0
+   return YEVE_ACTION
+end
+
+function update_money(main)
+   local statueBar = Canvas.wrapp(main.menuCnt.entries[2])
+   local bypos = 4 + 20 * statueBar.ent.nbBar
+
+   statueBar:pop_back()
+   statueBar:new_text(69, bypos,
+		      Entity.new_string(main.guy.money:to_int()))
 end
 
 function create_jims(entity)
@@ -122,10 +195,14 @@ function create_jims(entity)
 
    -- create widget
    ent["turn-length"] = 10000
+   ent.move = {}
+   ent.move.up_down = 0
+   ent.move.left_right = 0
    Entity.new_func("jims_action", ent, "action")
-   ent.background = "rgba: 127 127 127 255"
+   ent.background = "rgba: 255 255 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
    local fightCanvas = Canvas.new_entity(entity, "fightScreen")
+   local invCanvas = Canvas.new_entity(entity, "invScreen")
    ent.entries[0] = mainCanvas.ent  -- game screen
    ent.entries[0].size = 70
    ent.event_forwarding = "under mouse"
@@ -151,10 +228,18 @@ function create_jims(entity)
    pushBar(statueBar, ent.guy, "energy")
    pushBar(statueBar, ent.guy, "hunger")
    pushBar(statueBar, ent.guy, "bladder")
-   --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
+
+   -- money
+   local bypos = 4 + 20 * statueBar.ent.nbBar
+   statueBar:new_text(1, bypos, Entity.new_string("money"))
+   ent.money_pos = bypos
+   statueBar:new_text(69, bypos, Entity.new_string(ent.guy.money:to_int()))
+
    local ret = container:new_wid()
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
+   init_furniture(ent)
    init_room(ent, mainCanvas)
+   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png", Rect.new(25, 25, 50, 50)):cent()
    return ret
 end

@@ -42,6 +42,7 @@ function jimsFSAttackGuy(entity)
    if main.guy.attack(main:cent(), main.guy:cent(),
 		      fScreen.badGuy:cent()) == Y_TRUE then
       main.guy.money = main.guy.money + 10
+      update_money(main)
       swapToHouse(entity)
       return
    end

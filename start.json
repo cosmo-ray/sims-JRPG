@@ -6,6 +6,10 @@
     ],
     "pre-load" : [
 	{
+            "file" : "inv.lua",
+            "type" : "lua"
+        },
+	{
             "file" : "animation.lua",
             "type" : "lua"
         },
