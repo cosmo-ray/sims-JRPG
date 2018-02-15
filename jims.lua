@@ -75,20 +75,33 @@ function swapToHouse(entity)
    return YEVE_ACTION
 end
 
+function add_furniture(main, t, rect, path)
+   local ft = main.furniture[t]
+   local ftlen = ft:len()
+   ft[ftlen] = {}
+   main.furniture.beds[ftlen].rect = rect:cent()
+   main.furniture.beds[ftlen].path = path
+end
 
 function init_furniture(main)
    main.furniture = {}
    main.furniture.beds = {}
-   main.furniture.beds[0] = {}
-   main.furniture.beds[0].rect = Rect.new(416, 102, 64, 90):cent()
-   main.furniture.beds[1] = {}
-   main.furniture.beds[1].rect = Rect.new(416, 152, 64, 90):cent()
+   main.furniture.fridges = {}
+   main.furniture.stove = {}
+   main.furniture.wc = {}
+   main.furniture.shower = {}
+   main.furniture.radio = {}
+
+   -- bed time
+   add_furniture(main, "beds", Rect.new(416, 102, 64, 90), "open_tileset.png")
+   add_furniture(main, "beds", Rect.new(416, 152, 64, 90), "open_tileset.png")
+
 end
 
 function init_room(ent, mainCanvas)
    --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
    -- Rect.new(416, 102, 64, 90)
-   ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png",
+   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.beds[0].path:to_string(),
 				ent.furniture.beds[0].rect):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
