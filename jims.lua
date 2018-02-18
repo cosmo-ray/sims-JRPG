@@ -104,39 +104,36 @@ end
 
 function init_furniture(main)
    main.furniture = {}
-   main.furniture.beds = {}
-   main.furniture.fridges = {}
+   main.furniture.bed = {}
+   main.furniture.fridge = {}
    main.furniture.stove = {}
    main.furniture.wc = {}
    main.furniture.shower = {}
    main.furniture.radio = {}
 
    -- bed time
-   add_furniture(main, "beds", Rect.new(416, 102, 64, 90), "open_tileset.png",
+   add_furniture(main, "bed", Rect.new(416, 102, 64, 90), "open_tileset.png",
 		 20, "sleepy Pi")
-   add_furniture(main, "beds", Rect.new(416, 152, 64, 90), "open_tileset.png",
+   add_furniture(main, "bed", Rect.new(416, 152, 64, 90), "open_tileset.png",
 		 35, "besuto bed")
    add_furniture(main, "stove", Rect.new(32, 114, 31, 44), "open_tileset.png",
 		 15, "hot steve")
+   add_furniture(main, "fridge", Rect.new(0, 97, 32, 61), "open_tileset.png",
+		 15, "cold maiden")
    add_furniture(main, "wc", Rect.new(3, 293, 27, 40), "open_tileset.png",
 		 15, "free duke")
-
    add_furniture(main, "shower", Rect.new(64, 256, 32, 90), "open_tileset.png",
 		 15, "clean clea")
-
    add_furniture(main, "radio", Rect.new(192, 108, 32, 52), "open_tileset.png",
 		 15, "blowing rad")
-
 end
 
 function init_room(ent, mainCanvas)
-   --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-   -- Rect.new(416, 102, 64, 90)
-   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.beds[0].path:to_string(),
-				ent.furniture.beds[0].rect):cent()
+   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.bed[0].path:to_string(),
+				ent.furniture.bed[0].rect):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
-    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
+    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
     ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
     ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
 
@@ -213,9 +210,9 @@ function swapToInv(entity)
    -- init combat
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy", Entity.new_func("inv_buy"))
+   setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
    setMenuAction(mainMenu, 1, "go home", "jims.house_time")
-   init_inv_furnitur(Entity.wrapp(main), invScreen)
+   init_shop_furnitur(Entity.wrapp(main), invScreen)
    Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
 end
@@ -293,7 +290,8 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png", Rect.new(25, 25, 50, 50)):cent()
+   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png",
+				       Rect.new(25, 25, 50, 50)):cent()
 
    return ret
 end

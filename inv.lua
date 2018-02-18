@@ -11,6 +11,7 @@ function display_furniture(furn, invScreen, t, xThreshold, yThreshold)
 	 invScreen.ent.nbFurniture = invScreen.ent.nbFurniture + 1
 	 posInfo.furn = furn[t][i]
 	 posInfo.pos = Pos.new(pos, yThreshold).ent
+	 posInfo.type = t
 
 	 invScreen:new_text(1 + pos, 0 + yThreshold,
 			    Entity.new_string(furn[t][i].name:to_string()))
@@ -37,7 +38,7 @@ function shoop_cursor_move(main, invScreen, move)
    CanvasObj.wrapp(invScreen.rect):set_pos(realPos:x(), realPos:y())
 end
 
-function init_inv_furnitur(main, invScreen)
+function init_shop_furnitur(main, invScreen)
    local furn = main.furniture
 
    invScreen.nbFurniture = 0
@@ -49,7 +50,8 @@ function init_inv_furnitur(main, invScreen)
       invScreen:pop_back()
    end
 
-   local nb = display_furniture(furn, invScreen, "beds", 0, 0)
+   local nb = display_furniture(furn, invScreen, "bed", 0, 0)
+   nb = display_furniture(furn, invScreen, "fridge", nb * objWSize, 0) + nb
    display_furniture(furn, invScreen, "stove", nb * objWSize, 0)
    nb = display_furniture(furn, invScreen, "wc", 0, objHSize)
    nb = display_furniture(furn, invScreen, "shower", nb * objWSize, objHSize) + nb
@@ -63,6 +65,21 @@ function init_inv_furnitur(main, invScreen)
    invScreen.ent.current_pos = 0
 end
 
-function inv_buy(entity)
-   print("buy stuff")
+function shop_buy(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local invScreen = main.invScreen
+   local newObj = invScreen.posInfo[invScreen.current_pos:to_int()]
+   local mainCanvas = Canvas.wrapp(main.mainScreen)
+   local type = newObj.type:to_string()
+   local posx = main[type].pos.x
+   local posy = main[type].pos.y
+
+   mainCanvas:remove(main[type])
+   main[type] = mainCanvas:new_img(posx:to_int(), posy:to_int(),
+				   newObj.furn.path:to_string(),
+				   newObj.furn.rect):cent()
+
+   print("buy stuff", newObj.type, posx, posy,
+	 main:cent(), invScreen:cent())
 end
