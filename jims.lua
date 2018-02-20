@@ -13,16 +13,24 @@ function jims_action(entity, eve, arg)
    eve = Event.wrapp(eve)
    local move = entity.move
    local guy = entity.guy
+   local return_not_handle = false
+   local shoop_move = 0
 
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
 	 if eve:key() == Y_ESC_KEY then
 	    yFinishGame()
 	    return YEVE_ACTION
-	 elseif eve:is_key_up() then move.up_down = -1
-         elseif eve:is_key_down() then move.up_down = 1
-         elseif eve:is_key_left() then move.left_right = -1
-         elseif eve:is_key_right() then move.left_right = 1
+	 elseif eve:key() == Y_W_KEY then move.up_down = -1
+         elseif eve:key() == Y_S_KEY then move.up_down = 1
+         elseif eve:key() == Y_A_KEY then move.left_right = -1
+         elseif eve:key() == Y_D_KEY then move.left_right = 1
+	 elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
+	    return_not_handle = true
+	 elseif eve:key() == Y_LEFT_KEY then
+	    shoop_move = -1
+	 elseif eve:key() == Y_RIGHT_KEY then
+	    shoop_move = 1
          end
       elseif eve:type() == YKEY_UP then
          if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
@@ -37,9 +45,17 @@ function jims_action(entity, eve, arg)
 				     move.left_right ~= Entity.new_int(0)) then
       CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
 						      5 * move.up_down))
+      if return_not_handle then
+	 return YEVE_NOTHANDLE
+      end
       return YEVE_ACTION
    end
    if doAnimation(entity) then
+      return YEVE_ACTION
+   end
+   if shoop_move ~= 0 and entity.invScreen:cent() == entity.entries[0]:cent() then
+      print("shop move")
+      shoop_cursor_move(entity, entity.invScreen, shoop_move)
       return YEVE_ACTION
    end
    return YEVE_NOTHANDLE
@@ -75,37 +91,49 @@ function swapToHouse(entity)
    return YEVE_ACTION
 end
 
-function add_furniture(main, t, rect, path)
+function add_furniture(main, t, rect, path, price, name)
    local ft = main.furniture[t]
    local ftlen = ft:len()
+
    ft[ftlen] = {}
-   main.furniture.beds[ftlen].rect = rect:cent()
-   main.furniture.beds[ftlen].path = path
+   ft[ftlen].rect = rect:cent()
+   ft[ftlen].path = path
+   ft[ftlen].price = price
+   ft[ftlen].name = name
 end
 
 function init_furniture(main)
    main.furniture = {}
-   main.furniture.beds = {}
-   main.furniture.fridges = {}
+   main.furniture.bed = {}
+   main.furniture.fridge = {}
    main.furniture.stove = {}
    main.furniture.wc = {}
    main.furniture.shower = {}
    main.furniture.radio = {}
 
    -- bed time
-   add_furniture(main, "beds", Rect.new(416, 102, 64, 90), "open_tileset.png")
-   add_furniture(main, "beds", Rect.new(416, 152, 64, 90), "open_tileset.png")
-
+   add_furniture(main, "bed", Rect.new(416, 102, 64, 90), "open_tileset.png",
+		 20, "sleepy Pi")
+   add_furniture(main, "bed", Rect.new(416, 152, 64, 90), "open_tileset.png",
+		 35, "besuto bed")
+   add_furniture(main, "stove", Rect.new(32, 114, 31, 44), "open_tileset.png",
+		 15, "hot steve")
+   add_furniture(main, "fridge", Rect.new(0, 97, 32, 61), "open_tileset.png",
+		 15, "cold maiden")
+   add_furniture(main, "wc", Rect.new(3, 293, 27, 40), "open_tileset.png",
+		 15, "free duke")
+   add_furniture(main, "shower", Rect.new(64, 256, 32, 90), "open_tileset.png",
+		 15, "clean clea")
+   add_furniture(main, "radio", Rect.new(192, 108, 32, 52), "open_tileset.png",
+		 15, "blowing rad")
 end
 
 function init_room(ent, mainCanvas)
-   --mainCanvas:new_img(0, 0, "Male_basic.png", Rect.new(25, 25, 50, 50))
-   -- Rect.new(416, 102, 64, 90)
-   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.beds[0].path:to_string(),
-				ent.furniture.beds[0].rect):cent()
+   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.bed[0].path:to_string(),
+				ent.furniture.bed[0].rect):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
-    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40))
+    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
     ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
     ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
 
@@ -182,9 +210,9 @@ function swapToInv(entity)
    -- init combat
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy", Entity.new_func("inv_buy"))
+   setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
    setMenuAction(mainMenu, 1, "go home", "jims.house_time")
-   Canvas.wrapp(invScreen):new_img(0, 0, "open_tileset.png", Rect.new(0, 97, 32, 61))
+   init_shop_furnitur(Entity.wrapp(main), invScreen)
    Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
 end
@@ -219,6 +247,7 @@ function create_jims(entity)
    ent.move.up_down = 0
    ent.move.left_right = 0
    Entity.new_func("jims_action", ent, "action")
+   Entity.new_func("jims_destroy", ent, "destroy")
 
    ent.background = "rgba: 255 255 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
@@ -226,7 +255,7 @@ function create_jims(entity)
    local invCanvas = Canvas.new_entity(entity, "invScreen")
    ent.entries[0] = mainCanvas.ent  -- game screen
    ent.entries[0].size = 70
-   ent.event_forwarding = "under mouse"
+   ent.current = 1
    -- bottom box
    local menu_cnt = Container.new_entity("vertical", entity, "menuCnt")
    ent.entries[1] = menu_cnt.ent
@@ -261,7 +290,8 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png", Rect.new(25, 25, 50, 50)):cent()
+   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png",
+				       Rect.new(25, 25, 50, 50)):cent()
 
    return ret
 end
