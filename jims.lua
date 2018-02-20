@@ -136,6 +136,8 @@ function init_room(ent, mainCanvas)
     ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
     ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
     ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
+    ent.door = mainCanvas:new_img(350, 200, "open_tileset.png", Rect.new(161, 288, 31, 44)):cent()
+    ent.wall = mainCanvas:new_img(400, 0, "open_tileset.png", Rect.new(0, 32, 33, 64)):cent()
 
 end
 
@@ -290,8 +292,8 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   ent.guy.canvas = mainCanvas:new_img(150, 150, "Male_basic.png",
-				       Rect.new(25, 25, 50, 50)):cent()
+   ent.guy.canvas = mainCanvas:new_img(150, 150, "female_basic.png",
+                    Rect.new(16, 652, 32, 51)):cent()
 
    return ret
 end
