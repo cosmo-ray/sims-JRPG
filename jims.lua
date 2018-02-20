@@ -65,14 +65,14 @@ function sleep(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
 
-   statAdd(main.guy, "energy", 100)
+   statAdd(main.guy, "energy", main.bed.stat.energy)
 end
 
 function wash_yourself(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
 
-   statAdd(main.guy, "hygien", 100)
+   statAdd(main.guy, "hygien", main.shower.stat.hygien)
 end
 
 function swapToHouse(entity)
@@ -129,8 +129,9 @@ function init_furniture(main)
 end
 
 function init_room(ent, mainCanvas)
-   ent.bed = mainCanvas:new_img(0, 0, ent.furniture.bed[0].path:to_string(),
-				ent.furniture.bed[0].rect):cent()
+    ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90)):cent()
+    --ent.bed = mainCanvas:new_img(0, 0, ent.furniture.bed[0].path:to_string(),
+    --ent.furniture.bed[0].rect):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
     ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
@@ -139,6 +140,17 @@ function init_room(ent, mainCanvas)
     ent.door = mainCanvas:new_img(350, 200, "open_tileset.png", Rect.new(161, 288, 31, 44)):cent()
     ent.wall = mainCanvas:new_img(400, 0, "open_tileset.png", Rect.new(0, 32, 33, 64)):cent()
 
+    ent.bed.stat = {}
+    ent.fridge.stat = {}
+    ent.shower.stat = {}
+    ent.radio.stat = {}
+    ent.wc.stat = {}
+
+    ent.bed.stat.energy = 50
+    ent.fridge.stat.food = 50
+    ent.shower.stat.hygien = 50
+    ent.radio.stat.fun = 50    
+    
 end
 
 function setMenuAction(mainMenu, idx, text, action)
