@@ -66,13 +66,60 @@ function sleep(entity)
    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
 
    statAdd(main.guy, "energy", main.bed.stat.energy)
+   statAdd(main.guy, "hygien", -2)
+   statAdd(main.guy, "hunger", -5)   
+   statAdd(main.guy, "bladder", -2)
+   statAdd(main.guy, "fun", -2)
+
 end
 
 function wash_yourself(entity)
-   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
-   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+ 
+    statAdd(main.guy, "hygien", main.shower.stat.hygien)
+    statAdd(main.guy, "hunger", -2)
+    statAdd(main.guy, "bladder", -2)
+    statAdd(main.guy, "energy", -2)
+    statAdd(main.guy, "fun", -2)
+ 
+ end
 
-   statAdd(main.guy, "hygien", main.shower.stat.hygien)
+function have_fun(entity)
+    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+ 
+    statAdd(main.guy, "fun", main.radio.stat.fun)
+    statAdd(main.guy, "hygien", -2)
+    statAdd(main.guy, "hunger", -2)
+    statAdd(main.guy, "bladder", -2)
+    statAdd(main.guy, "energy", -2)
+ 
+end
+
+function eat(entity)
+    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+ 
+    statAdd(main.guy, "hunger", main.fridge.stat.food)
+    statAdd(main.guy, "hygien", -2)
+    statAdd(main.guy, "bladder", -2)
+    statAdd(main.guy, "energy", -2)
+    statAdd(main.guy, "fun", -2)
+ 
+end
+
+function go_to_the_toilet(entity)
+    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+    local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+ 
+    statAdd(main.guy, "bladder", main.wc.stat.bladder)
+    statAdd(main.guy, "hygien", -2)
+    statAdd(main.guy, "hunger", -2)
+    statAdd(main.guy, "energy", -2)
+    statAdd(main.guy, "fun", -2)
+
+ 
 end
 
 function swapToHouse(entity)
@@ -83,7 +130,10 @@ function swapToHouse(entity)
    setMenuAction(mainMenu, 1, "buy stuff", "jims.inventary_time")
    setMenuAction(mainMenu, 2, "sleep", Entity.new_func("sleep"))
    setMenuAction(mainMenu, 3, "wash yourself", Entity.new_func("wash_yourself"))
-   setMenuAction(mainMenu, 4, "quit", "FinishGame")
+   setMenuAction(mainMenu, 4, "have_fun", Entity.new_func("have_fun"))
+   setMenuAction(mainMenu, 5, "eat", Entity.new_func("eat"))
+   setMenuAction(mainMenu, 6, "go_to_the_toilet", Entity.new_func("go_to_the_toilet"))
+   setMenuAction(mainMenu, 7, "quit", "FinishGame")
 
    Entity.wrapp(main).guy.movable = 1
 
@@ -150,6 +200,7 @@ function init_room(ent, mainCanvas)
     ent.fridge.stat.food = 50
     ent.shower.stat.hygien = 50
     ent.radio.stat.fun = 50    
+    ent.wc.stat.bladder = 50    
     
 end
 
