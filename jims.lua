@@ -224,15 +224,26 @@ function push_resource(resources, path, rect)
    return l
 end
 
+function init_new_cloth(main, path, isBuy)
+   local l = main.clothes:len()
+
+   main.clothes[l] = {}
+   main.clothes[l].is_buy = isBuy
+   main.clothes[l].resources = {}
+
+   local rs = main.clothes[l].resources
+   push_resource(rs, path, Rect.new(16, 652, 32, 51))
+   return l
+end
+
 function init_pj(main, mainCanvas)
    main.clothes = {}
-   main.clothes[0] = {}
-   main.clothes[0].is_buy = 0
-   main.clothes[0].resources = {}
 
-   local rs = main.clothes[0].resources
-   push_resource(rs, "./Female_basic.png", Rect.new(16, 652, 32, 51))
-   mainCanvas.resources = main.clothes[0].resources
+   init_new_cloth(main, "Female_basic.png", 1)
+   init_new_cloth(main, "Female_pyjama.png", 1)
+   init_new_cloth(main, "Female_dress.png", 0)
+
+   mainCanvas.resources = main.clothes[1].resources
 end
 
 function init_room(ent, mainCanvas)
