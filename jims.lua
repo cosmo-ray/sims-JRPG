@@ -96,7 +96,7 @@ function sleep(entity)
 
    statAdd(main.guy, "energy", main.bed.stat.energy)
    statAdd(main.guy, "hygien", -2)
-   statAdd(main.guy, "hunger", -5)   
+   statAdd(main.guy, "hunger", -5)
    statAdd(main.guy, "bladder", -2)
    statAdd(main.guy, "fun", -2)
 
@@ -105,50 +105,45 @@ end
 function wash_yourself(entity)
     local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
     local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
- 
+
     statAdd(main.guy, "hygien", main.shower.stat.hygien)
     statAdd(main.guy, "hunger", -2)
     statAdd(main.guy, "bladder", -2)
     statAdd(main.guy, "energy", -2)
     statAdd(main.guy, "fun", -2)
- 
  end
 
 function have_fun(entity)
     local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
     local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
- 
+
     statAdd(main.guy, "fun", main.radio.stat.fun)
     statAdd(main.guy, "hygien", -2)
     statAdd(main.guy, "hunger", -2)
     statAdd(main.guy, "bladder", -2)
     statAdd(main.guy, "energy", -2)
- 
 end
 
 function eat(entity)
     local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
     local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
- 
+
     statAdd(main.guy, "hunger", main.fridge.stat.food)
     statAdd(main.guy, "hygien", -2)
     statAdd(main.guy, "bladder", -2)
     statAdd(main.guy, "energy", -2)
     statAdd(main.guy, "fun", -2)
- 
 end
 
 function go_to_the_toilet(entity)
     local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
     local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
- 
+
     statAdd(main.guy, "bladder", main.wc.stat.bladder)
     statAdd(main.guy, "hygien", -2)
     statAdd(main.guy, "hunger", -2)
     statAdd(main.guy, "energy", -2)
     statAdd(main.guy, "fun", -2)
-
- 
 end
 
 function swapToHouse(entity)
@@ -223,8 +218,6 @@ end
 
 function init_room(ent, mainCanvas)
     ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90)):cent()
-    --ent.bed = mainCanvas:new_img(0, 0, ent.furniture.bed[0].path:to_string(),
-    --ent.furniture.bed[0].rect):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
     ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
@@ -242,9 +235,8 @@ function init_room(ent, mainCanvas)
     ent.bed.stat.energy = 50
     ent.fridge.stat.food = 50
     ent.shower.stat.hygien = 50
-    ent.radio.stat.fun = 50    
-    ent.wc.stat.bladder = 50    
-    
+    ent.radio.stat.fun = 50
+    ent.wc.stat.bladder = 50
 end
 
 function setMenuAction(mainMenu, idx, text, action)
@@ -415,7 +407,7 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   ent.guy.canvas = mainCanvas:new_img(150, 150, "female_basic.png",
+   ent.guy.canvas = mainCanvas:new_img(150, 150, "Female_basic.png",
                     Rect.new(16, 652, 32, 51)):cent()
 
    return ret
