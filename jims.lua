@@ -5,7 +5,6 @@ function init_jims(mod)
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
    Entity.wrapp(mod).shop_time = Entity.new_func("swapToShop")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
-
 end
 
 function display_text_timer(main, anim)
@@ -216,6 +215,26 @@ function init_furniture(main)
 		 15, "Worker Suit")
 end
 
+function push_resource(resources, path, rect)
+   local l = resources:len()
+
+   resources[l] = {}
+   resources[l].img = path
+   resources[l]["img-src-rect"] = rect:cent()
+   return l
+end
+
+function init_pj(main, mainCanvas)
+   main.clothes = {}
+   main.clothes[0] = {}
+   main.clothes[0].is_buy = 0
+   main.clothes[0].resources = {}
+
+   local rs = main.clothes[0].resources
+   push_resource(rs, "./Female_basic.png", Rect.new(16, 652, 32, 51))
+   mainCanvas.resources = main.clothes[0].resources
+end
+
 function init_room(ent, mainCanvas)
     ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90)):cent()
     ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
@@ -407,10 +426,7 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   mainCanvas.ent.resources = {}
-   mainCanvas.ent.resources[0] = {}
-   mainCanvas.ent.resources[0].img = "./Female_basic.png"
-   mainCanvas.ent.resources[0]["img-src-rect"] = Rect.new(16, 652, 32, 51):cent()
+   init_pj(ent, mainCanvas.ent)
    ent.guy.canvas = mainCanvas:new_obj(150, 150, 0):cent()
 
    return ret
