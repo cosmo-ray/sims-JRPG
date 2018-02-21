@@ -407,8 +407,11 @@ function create_jims(entity)
    swapToHouse(mn:cent())
    init_furniture(ent)
    init_room(ent, mainCanvas)
-   ent.guy.canvas = mainCanvas:new_img(150, 150, "Female_basic.png",
-                    Rect.new(16, 652, 32, 51)):cent()
+   mainCanvas.ent.resources = {}
+   mainCanvas.ent.resources[0] = {}
+   mainCanvas.ent.resources[0].img = "./Female_basic.png"
+   mainCanvas.ent.resources[0]["img-src-rect"] = Rect.new(16, 652, 32, 51):cent()
+   ent.guy.canvas = mainCanvas:new_obj(150, 150, 0):cent()
 
    return ret
 end
