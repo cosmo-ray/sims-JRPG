@@ -241,6 +241,7 @@ function init_pj(main, mainCanvas)
 
    init_new_cloth(main, "Female_basic.png", 1)
    init_new_cloth(main, "Female_pyjama.png", 1)
+   init_new_cloth(main, "Female_naked.png", 1)
    init_new_cloth(main, "Female_dress.png", 0)
 
    mainCanvas.resources = main.clothes[1].resources
