@@ -3,9 +3,29 @@ function init_jims(mod)
 
    Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
-   Entity.wrapp(mod).inventary_time = Entity.new_func("swapToInv")
+   Entity.wrapp(mod).shop_time = Entity.new_func("swapToShop")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
 
+end
+
+function display_text_timer(main, anim)
+   anim = Entity.wrapp(anim)
+   main = Entity.wrapp(main)
+
+   anim.animation_frame = anim.animation_frame + 1
+   if anim.animation_frame > 30 then
+      Canvas.wrapp(anim.wid):remove(anim.text)
+      endAnimation(main, "txt_anim")
+   end
+end
+
+function display_text(main, txt, x, y)
+   local canvas = Canvas.wrapp(main.entries[0])
+
+   local anim = startAnimation(main:cent(),
+			       Entity.new_func("display_text_timer"), "txt_anim")
+   anim.text = canvas:new_text(x, y, Entity.new_string(txt)):cent()
+   anim.wid = canvas.ent
 end
 
 function jims_action(entity, eve, arg)
@@ -14,7 +34,6 @@ function jims_action(entity, eve, arg)
    local move = entity.move
    local guy = entity.guy
    local return_not_handle = false
-   local shoop_move = 0
 
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
@@ -28,9 +47,9 @@ function jims_action(entity, eve, arg)
 	 elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
 	    return_not_handle = true
 	 elseif eve:key() == Y_LEFT_KEY then
-	    shoop_move = -1
+	    move.left_right = -1
 	 elseif eve:key() == Y_RIGHT_KEY then
-	    shoop_move = 1
+	    move.left_right = 1
          end
       elseif eve:type() == YKEY_UP then
          if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
@@ -41,6 +60,8 @@ function jims_action(entity, eve, arg)
       end
       eve = eve:next()
    end
+
+   doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
 				     move.left_right ~= Entity.new_int(0)) then
       CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
@@ -50,13 +71,21 @@ function jims_action(entity, eve, arg)
       end
       return YEVE_ACTION
    end
-   if doAnimation(entity) then
+   if doAnimation(entity, "cur_anim") then
       return YEVE_ACTION
    end
-   if shoop_move ~= 0 and entity.invScreen:cent() == entity.entries[0]:cent() then
-      print("shop move")
-      shoop_cursor_move(entity, entity.invScreen, shoop_move)
-      return YEVE_ACTION
+   if entity.invScreen:cent() == entity.entries[0]:cent() then
+
+      if move.up_down:to_int() ~= 0 then
+	 move.left_right = move.up_down * 4
+	 move.up_down = 0
+      end
+
+      if move.left_right:to_int() ~= 0 then
+	 shoop_cursor_move(entity, entity.invScreen, move.left_right:to_int())
+	 move.left_right = 0
+	 return YEVE_ACTION
+      end
    end
    return YEVE_NOTHANDLE
 end
@@ -127,7 +156,7 @@ function swapToHouse(entity)
    local main = ywCntWidgetFather(mainMenu:cent())
 
    setMenuAction(mainMenu, 0, "fight now", "jims.fight_time")
-   setMenuAction(mainMenu, 1, "buy stuff", "jims.inventary_time")
+   setMenuAction(mainMenu, 1, "buy stuff", "jims.shop_time")
    setMenuAction(mainMenu, 2, "sleep", Entity.new_func("sleep"))
    setMenuAction(mainMenu, 3, "wash yourself", Entity.new_func("wash_yourself"))
    setMenuAction(mainMenu, 4, "have_fun", Entity.new_func("have_fun"))
@@ -141,8 +170,8 @@ function swapToHouse(entity)
    return YEVE_ACTION
 end
 
-function add_furniture(main, t, rect, path, price, name)
-   local ft = main.furniture[t]
+function add_furniture(main, furn_type, t, rect, path, price, name)
+   local ft = main[furn_type][t]
    local ftlen = ft:len()
 
    ft[ftlen] = {}
@@ -150,6 +179,7 @@ function add_furniture(main, t, rect, path, price, name)
    ft[ftlen].path = path
    ft[ftlen].price = price
    ft[ftlen].name = name
+   return ft[ftlen]
 end
 
 function init_furniture(main)
@@ -162,20 +192,33 @@ function init_furniture(main)
    main.furniture.radio = {}
 
    -- bed time
-   add_furniture(main, "bed", Rect.new(416, 102, 64, 90), "open_tileset.png",
+   add_furniture(main, "furniture", "bed",
+		 Rect.new(416, 102, 64, 90), "open_tileset.png",
 		 20, "sleepy Pi")
-   add_furniture(main, "bed", Rect.new(416, 152, 64, 90), "open_tileset.png",
+   add_furniture(main, "furniture", "bed",
+		 Rect.new(416, 152, 64, 90), "open_tileset.png",
 		 35, "besuto bed")
-   add_furniture(main, "stove", Rect.new(32, 114, 31, 44), "open_tileset.png",
+   add_furniture(main, "furniture", "stove",
+		 Rect.new(32, 114, 31, 44), "open_tileset.png",
 		 15, "hot steve")
-   add_furniture(main, "fridge", Rect.new(0, 97, 32, 61), "open_tileset.png",
+   add_furniture(main, "furniture", "fridge",
+		 Rect.new(0, 97, 32, 61), "open_tileset.png",
 		 15, "cold maiden")
-   add_furniture(main, "wc", Rect.new(3, 293, 27, 40), "open_tileset.png",
+   add_furniture(main, "furniture", "wc",
+		 Rect.new(3, 293, 27, 40), "open_tileset.png",
 		 15, "free duke")
-   add_furniture(main, "shower", Rect.new(64, 256, 32, 90), "open_tileset.png",
+   add_furniture(main, "furniture", "shower",
+		 Rect.new(64, 256, 32, 90), "open_tileset.png",
 		 15, "clean clea")
-   add_furniture(main, "radio", Rect.new(192, 108, 32, 52), "open_tileset.png",
+   add_furniture(main, "furniture", "radio",
+		 Rect.new(192, 108, 32, 52), "open_tileset.png",
 		 15, "blowing rad")
+
+   main.clothes_furn = {}
+   main.clothes_furn.uniform = {}
+   add_furniture(main, "clothes_furn", "uniform",
+		 Rect.new(192, 108, 32, 52), "open_tileset.png",
+		 15, "Worker Suit")
 end
 
 function init_room(ent, mainCanvas)
@@ -266,18 +309,35 @@ function swapToFight(entity)
    return YEVE_ACTION
 end
 
-function swapToInv(entity)
+function swapToClothShop(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
    local main = ywCntWidgetFather(mainMenu:cent())
    local invScreen = Entity.wrapp(main).invScreen
-   local widSize = Entity.wrapp(main).mainScreen["wid-pix"]
+
+   ywReplaceEntry(main, 0, invScreen:cent())
+   cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 1, "go to leakea",
+		 Entity.new_func("swapToShop"))
+   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   main = Entity.wrapp(main)
+   init_shop_furnitur(main, invScreen, main.clothes_furn)
+   Entity.wrapp(main).guy.movable = 0
+end
+
+function swapToShop(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+   local invScreen = Entity.wrapp(main).invScreen
 
    -- init combat
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
    setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
-   setMenuAction(mainMenu, 1, "go home", "jims.house_time")
-   init_shop_furnitur(Entity.wrapp(main), invScreen)
+   setMenuAction(mainMenu, 1, "go to cloth shop",
+		 Entity.new_func("swapToClothShop"))
+   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   main = Entity.wrapp(main)
+   init_shop_furnitur(main, invScreen, main.furniture)
    Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
 end

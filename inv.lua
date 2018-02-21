@@ -30,17 +30,14 @@ function shoop_cursor_move(main, invScreen, move)
 
    if invScreen.current_pos < 0 then
       invScreen.current_pos = invScreen.nbFurniture + -1
-   elseif invScreen.current_pos == invScreen.nbFurniture then
+   elseif invScreen.current_pos >= invScreen.nbFurniture then
       invScreen.current_pos = 0
    end
    local realPos = Pos.wrapp(invScreen.posInfo[invScreen.current_pos:to_int()].pos)
-   print(realPos:tostring())
    CanvasObj.wrapp(invScreen.rect):set_pos(realPos:x(), realPos:y())
 end
 
-function init_shop_furnitur(main, invScreen)
-   local furn = main.furniture
-
+function init_shop_furnitur(main, invScreen, furn)
    invScreen.nbFurniture = 0
    invScreen.posInfo = {}
 
@@ -50,12 +47,16 @@ function init_shop_furnitur(main, invScreen)
       invScreen:pop_back()
    end
 
-   local nb = display_furniture(furn, invScreen, "bed", 0, 0)
-   nb = display_furniture(furn, invScreen, "fridge", nb * objWSize, 0) + nb
-   display_furniture(furn, invScreen, "stove", nb * objWSize, 0)
-   nb = display_furniture(furn, invScreen, "wc", 0, objHSize)
-   nb = display_furniture(furn, invScreen, "shower", nb * objWSize, objHSize) + nb
-   display_furniture(furn, invScreen, "radio", nb * objWSize, objHSize)
+   if furn.bed then
+      local nb = display_furniture(furn, invScreen, "bed", 0, 0)
+      nb = display_furniture(furn, invScreen, "fridge", nb * objWSize, 0) + nb
+      display_furniture(furn, invScreen, "stove", nb * objWSize, 0)
+      nb = display_furniture(furn, invScreen, "wc", 0, objHSize)
+      nb = display_furniture(furn, invScreen, "shower", nb * objWSize, objHSize) + nb
+      display_furniture(furn, invScreen, "radio", nb * objWSize, objHSize)
+   else
+      display_furniture(furn, invScreen, "uniform", 0, 0)
+   end
    local rect = Entity.new_array()
    rect[0] = Pos.new(objWSize, objHSize).ent;
    rect[1] = "rgba: 127 0 0 100";
@@ -71,15 +72,18 @@ function shop_buy(entity)
    local invScreen = main.invScreen
    local newObj = invScreen.posInfo[invScreen.current_pos:to_int()]
    local mainCanvas = Canvas.wrapp(main.mainScreen)
-   local type = newObj.type:to_string()
-   local posx = main[type].pos.x
-   local posy = main[type].pos.y
+   local t = newObj.type:to_string()
+   local posx = main[t].pos.x
+   local posy = main[t].pos.y
 
-   mainCanvas:remove(main[type])
-   main[type] = mainCanvas:new_img(posx:to_int(), posy:to_int(),
+   if (main.guy.money - newObj.furn.price < 0) then
+      display_text(main, "you're too poor for that", 20, 300)
+      return
+   end
+   mainCanvas:remove(main[t])
+   main[t] = mainCanvas:new_img(posx:to_int(), posy:to_int(),
 				   newObj.furn.path:to_string(),
 				   newObj.furn.rect):cent()
-
-   print("buy stuff", newObj.type, posx, posy,
-	 main:cent(), invScreen:cent())
+   main.guy.money = main.guy.money - newObj.furn.price
+   update_money(main)
 end

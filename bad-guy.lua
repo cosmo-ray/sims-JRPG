@@ -47,7 +47,7 @@ function jimsFSAttackGuy(entity)
       return
    end
 
-   startAnimation(main:cent(), Entity.new_func("workAttackAnim"))
+   startAnimation(main:cent(), Entity.new_func("workAttackAnim"), "cur_anim")
 end
 
 function workAttackAnim(main, anim)
@@ -59,13 +59,11 @@ function workAttackAnim(main, anim)
       local fScreen = main.fightScreen
 
       fScreen.badGuy.attack(main:cent(), fScreen.badGuy:cent())
-      print("init time !")
    end
 
    if anim.animation_frame > 10 then
-      endAnimation(main, anim)
+      endAnimation(main, "cur_anim")
       if main.guy.hygien <= 0 then
-	 print("dead")
 	 swapToHouse(main.menuCnt.entries[0]:cent())
       end
       return
