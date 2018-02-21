@@ -155,7 +155,8 @@ function swapToHouse(entity)
    setMenuAction(mainMenu, 3, "wash yourself", Entity.new_func("wash_yourself"))
    setMenuAction(mainMenu, 4, "have_fun", Entity.new_func("have_fun"))
    setMenuAction(mainMenu, 5, "eat", Entity.new_func("eat"))
-   setMenuAction(mainMenu, 6, "go_to_the_toilet", Entity.new_func("go_to_the_toilet"))
+   setMenuAction(mainMenu, 6, "go_to_the_toilet",
+		 Entity.new_func("go_to_the_toilet"))
    setMenuAction(mainMenu, 7, "quit", "FinishGame")
 
    Entity.wrapp(main).guy.movable = 1
@@ -186,12 +187,17 @@ function init_furniture(main)
    main.furniture.radio = {}
 
    -- bed time
-   add_furniture(main, "furniture", "bed",
-		 Rect.new(416, 102, 64, 90), "open_tileset.png",
-		 20, "sleepy Pi")
-   add_furniture(main, "furniture", "bed",
-		 Rect.new(416, 152, 64, 90), "open_tileset.png",
-		 35, "besuto bed")
+   local cur = add_furniture(main, "furniture", "bed",
+			     Rect.new(416, 102, 64, 90),
+			     "open_tileset.png",
+			     20, "sleepy Pi")
+   cur.stat = {}
+   cur.stat.energy = 50
+   cur = add_furniture(main, "furniture", "bed",
+		       Rect.new(416, 152, 64, 90), "open_tileset.png",
+		       35, "besuto bed")
+   cur.stat = {}
+   cur.stat.energy = 100
    add_furniture(main, "furniture", "stove",
 		 Rect.new(32, 114, 31, 44), "open_tileset.png",
 		 15, "hot steve")
@@ -207,12 +213,6 @@ function init_furniture(main)
    add_furniture(main, "furniture", "radio",
 		 Rect.new(192, 108, 32, 52), "open_tileset.png",
 		 15, "blowing rad")
-
-   main.clothes_furn = {}
-   main.clothes_furn.uniform = {}
-   add_furniture(main, "clothes_furn", "uniform",
-		 Rect.new(192, 108, 32, 52), "open_tileset.png",
-		 15, "Worker Suit")
 end
 
 function push_resource(resources, path, rect)
@@ -343,8 +343,8 @@ function swapToClothShop(entity)
 		 Entity.new_func("swapToShop"))
    setMenuAction(mainMenu, 2, "go home", "jims.house_time")
    main = Entity.wrapp(main)
-   init_shop_furnitur(main, invScreen, main.clothes_furn)
    Entity.wrapp(main).guy.movable = 0
+   init_clothes_shop_furnitur(main, invScreen)
 end
 
 function swapToShop(entity)

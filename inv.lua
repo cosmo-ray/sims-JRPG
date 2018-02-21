@@ -37,6 +37,20 @@ function shoop_cursor_move(main, invScreen, move)
    CanvasObj.wrapp(invScreen.rect):set_pos(realPos:x(), realPos:y())
 end
 
+function init_clothes_shop_furnitur(main, invScreen)
+   invScreen.nbFurniture = 0
+   invScreen.posInfo = {}
+   invScreen = Canvas.wrapp(invScreen)
+
+   for i = 0, invScreen.ent.objs:len() do
+      invScreen:pop_back()
+   end
+
+   invScreen.ent.resources = {}
+   for i = 0, main.clothes:len() do
+   end
+end
+
 function init_shop_furnitur(main, invScreen, furn)
    invScreen.nbFurniture = 0
    invScreen.posInfo = {}
@@ -47,16 +61,12 @@ function init_shop_furnitur(main, invScreen, furn)
       invScreen:pop_back()
    end
 
-   if furn.bed then
-      local nb = display_furniture(furn, invScreen, "bed", 0, 0)
-      nb = display_furniture(furn, invScreen, "fridge", nb * objWSize, 0) + nb
-      display_furniture(furn, invScreen, "stove", nb * objWSize, 0)
-      nb = display_furniture(furn, invScreen, "wc", 0, objHSize)
-      nb = display_furniture(furn, invScreen, "shower", nb * objWSize, objHSize) + nb
-      display_furniture(furn, invScreen, "radio", nb * objWSize, objHSize)
-   else
-      display_furniture(furn, invScreen, "uniform", 0, 0)
-   end
+   local nb = display_furniture(furn, invScreen, "bed", 0, 0)
+   nb = display_furniture(furn, invScreen, "fridge", nb * objWSize, 0) + nb
+   display_furniture(furn, invScreen, "stove", nb * objWSize, 0)
+   nb = display_furniture(furn, invScreen, "wc", 0, objHSize)
+   nb = display_furniture(furn, invScreen, "shower", nb * objWSize, objHSize) + nb
+   display_furniture(furn, invScreen, "radio", nb * objWSize, objHSize)
    local rect = Entity.new_array()
    rect[0] = Pos.new(objWSize, objHSize).ent;
    rect[1] = "rgba: 127 0 0 100";
@@ -84,6 +94,7 @@ function shop_buy(entity)
    main[t] = mainCanvas:new_img(posx:to_int(), posy:to_int(),
 				   newObj.furn.path:to_string(),
 				   newObj.furn.rect):cent()
+   main[t].stat = newObj.furn.stat
    main.guy.money = main.guy.money - newObj.furn.price
    update_money(main)
 end
