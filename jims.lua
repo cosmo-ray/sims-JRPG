@@ -27,6 +27,14 @@ function display_text(main, txt, x, y)
    anim.wid = canvas.ent
 end
 
+function CheckColision(entity, obj, guy)
+    if ywCanvasObjectsCheckColisions(obj, guy) then
+        print("Danger Check colision")
+        return Y_TRUE
+    end
+    return Y_FALSE
+end
+
 function jims_action(entity, eve, arg)
    entity = Entity.wrapp(entity)
    eve = Event.wrapp(eve)
@@ -39,9 +47,9 @@ function jims_action(entity, eve, arg)
 	 if eve:key() == Y_ESC_KEY then
 	    yFinishGame()
 	    return YEVE_ACTION
-	 elseif eve:key() == Y_W_KEY then move.up_down = -1
+	 elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then move.up_down = -1
          elseif eve:key() == Y_S_KEY then move.up_down = 1
-         elseif eve:key() == Y_A_KEY then move.left_right = -1
+         elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then move.left_right = -1
          elseif eve:key() == Y_D_KEY then move.left_right = 1
 	 elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
 	    return_not_handle = true
@@ -51,20 +59,30 @@ function jims_action(entity, eve, arg)
 	    move.left_right = 1
          end
       elseif eve:type() == YKEY_UP then
-         if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
-         elseif eve:is_key_left() or eve:is_key_right() then
+         if eve:is_key_up() or eve:is_key_down() or eve:key() == Y_Z_KEY
+         then move.up_down = 0
+         elseif eve:is_key_left() or eve:is_key_right() or eve:key() == Y_Q_KEY then
 	    move.left_right = 0
          end
 
       end
       eve = eve:next()
    end
-
+   
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
 				     move.left_right ~= Entity.new_int(0)) then
       CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
-						      5 * move.up_down))
+                              5 * move.up_down))
+                            if ywCanvasCheckCollisions(entity.mainScreen:cent(),
+                                entity.guy.canvas:cent(),
+                                Entity.new_func("CheckColision"):cent()) == 1
+                            then
+                                
+                                CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(-5 * move.left_right,
+                              -5 * move.up_down))
+                                print("Danger Colision")
+                            end
       if return_not_handle then
 	 return YEVE_NOTHANDLE
       end
@@ -232,7 +250,11 @@ function init_new_cloth(main, path, isBuy)
    main.clothes[l].resources = {}
 
    local rs = main.clothes[l].resources
-   push_resource(rs, path, Rect.new(16, 652, 32, 51))
+   basic_front_pos = push_resource(rs, path, Rect.new(16, 652, 32, 51))
+   basic_back_pos = push_resource(rs, path, Rect.new(16, 525, 32, 51))
+   basic_left_pos = push_resource(rs, path, Rect.new(16, 588, 32, 51))
+   basic_right_pos = push_resource(rs, path, Rect.new(16, 715, 32, 51))
+
    return l
 end
 
@@ -244,18 +266,34 @@ function init_pj(main, mainCanvas)
    init_new_cloth(main, "Female_naked.png", 1)
    init_new_cloth(main, "Female_dress.png", 0)
 
-   mainCanvas.resources = main.clothes[1].resources
+   mainCanvas.resources = main.clothes[2].resources
 end
 
 function init_room(ent, mainCanvas)
-    ent.bed = mainCanvas:new_img(0, 0, "open_tileset.png", Rect.new(416, 102, 64, 90)):cent()
-    ent.fridge = mainCanvas:new_img(100, 0, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
-    ent.stove = mainCanvas:new_img(132, 17, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
-    ent.wc = mainCanvas:new_img(500, 17, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
-    ent.shower = mainCanvas:new_img(550, 17, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
-    ent.radio = mainCanvas:new_img(300, 17, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
-    ent.door = mainCanvas:new_img(350, 200, "open_tileset.png", Rect.new(161, 288, 31, 44)):cent()
-    ent.wall = mainCanvas:new_img(400, 0, "open_tileset.png", Rect.new(0, 32, 33, 64)):cent()
+    ent.bed = mainCanvas:new_img(0, 65, "Interior.png", Rect.new(680, 505, 48, 71)):cent()
+    ent.fridge = mainCanvas:new_img(100, 65, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
+    ent.stove = mainCanvas:new_img(132, 82, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
+    ent.wc = mainCanvas:new_img(500, 82, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
+    ent.shower = mainCanvas:new_img(550, 87, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
+    ent.radio = mainCanvas:new_img(300, 87, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
+    
+    local i = 0
+    while i < 600 do
+        mainCanvas:new_img(i, -20, "Greece.png", Rect.new(325, 192, 59, 64)):cent()
+        i = i + 59
+    end
+    i = 0
+    while i < 350 do
+        mainCanvas:new_img(0, i, "open_tileset.png", Rect.new(28, 34, 5, 15)):cent()
+        mainCanvas:new_img(635, i, "open_tileset.png", Rect.new(28, 34, 5, 15)):cent()
+        i = i + 15
+    end
+    i = 0
+    while i < 600 do
+        mainCanvas:new_img(i, 320, "Greece.png", Rect.new(325, 192, 59, 64)):cent()
+        i = i + 59
+    end
+    ent.door = mainCanvas:new_img(300, 320, "open_tileset.png", Rect.new(161, 288, 31, 40)):cent()
 
     ent.bed.stat = {}
     ent.fridge.stat = {}
@@ -439,7 +477,7 @@ function create_jims(entity)
    init_furniture(ent)
    init_room(ent, mainCanvas)
    init_pj(ent, mainCanvas.ent)
-   ent.guy.canvas = mainCanvas:new_obj(150, 150, 0):cent()
+   ent.guy.canvas = mainCanvas:new_obj(150, 150, basic_front_pos):cent()
 
    return ret
 end
