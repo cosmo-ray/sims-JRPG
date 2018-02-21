@@ -276,21 +276,26 @@ function init_room(ent, mainCanvas)
     ent.wc = mainCanvas:new_img(500, 82, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
     ent.shower = mainCanvas:new_img(550, 87, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
     ent.radio = mainCanvas:new_img(300, 87, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
-    
+
+    ent.wall_id0 = push_resource(mainCanvas.ent.resources,
+				 "Greece.png", Rect.new(325, 192, 59, 64))
+    ent.wall_id1 = push_resource(mainCanvas.ent.resources,
+				 "open_tileset.png", Rect.new(28, 34, 5, 15))
+    print(mainCanvas, mainCanvas.ent)
     local i = 0
     while i < 600 do
-        mainCanvas:new_img(i, -20, "Greece.png", Rect.new(325, 192, 59, 64)):cent()
-        i = i + 59
+       mainCanvas:new_obj(i, -20, ent.wall_id0:to_int()):cent()
+       i = i + 59
     end
     i = 0
     while i < 350 do
-        mainCanvas:new_img(0, i, "open_tileset.png", Rect.new(28, 34, 5, 15)):cent()
-        mainCanvas:new_img(635, i, "open_tileset.png", Rect.new(28, 34, 5, 15)):cent()
+        mainCanvas:new_obj(0, i, ent.wall_id1:to_int()):cent()
+        mainCanvas:new_obj(635, i, ent.wall_id1:to_int()):cent()
         i = i + 15
     end
     i = 0
     while i < 600 do
-        mainCanvas:new_img(i, 320, "Greece.png", Rect.new(325, 192, 59, 64)):cent()
+        mainCanvas:new_obj(i, 320, ent.wall_id0:to_int()):cent()
         i = i + 59
     end
     ent.door = mainCanvas:new_img(300, 320, "open_tileset.png", Rect.new(161, 288, 31, 40)):cent()
@@ -475,8 +480,8 @@ function create_jims(entity)
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
    init_furniture(ent)
-   init_room(ent, mainCanvas)
    init_pj(ent, mainCanvas.ent)
+   init_room(ent, mainCanvas)
    ent.guy.canvas = mainCanvas:new_obj(150, 150, basic_front_pos):cent()
 
    return ret
