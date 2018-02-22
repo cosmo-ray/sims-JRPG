@@ -29,7 +29,6 @@ end
 
 function CheckColision(entity, obj, guy)
     if ywCanvasObjectsCheckColisions(obj, guy) then
-        print("Danger Check colision")
         return Y_TRUE
     end
     return Y_FALSE
@@ -80,7 +79,6 @@ function jims_action(entity, eve, arg)
                             then
                                 CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(-5 * move.left_right,
                               -5 * move.up_down))
-                                print("Danger Colision")
                             end
       if return_not_handle then
 	 return YEVE_NOTHANDLE
@@ -275,7 +273,7 @@ function init_pj(main, mainCanvas)
 end
 
 function init_room(ent, mainCanvas)
-    ent.bed = mainCanvas:new_img(0, 65, "Interior.png", Rect.new(680, 505, 48, 71)):cent()
+    ent.bed = mainCanvas:new_img(10, 65, "Interior.png", Rect.new(680, 505, 48, 71)):cent()
     ent.fridge = mainCanvas:new_img(100, 65, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 82, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
     ent.wc = mainCanvas:new_img(500, 82, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
