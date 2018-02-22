@@ -68,7 +68,7 @@ function jims_action(entity, eve, arg)
       end
       eve = eve:next()
    end
-   
+
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
 				     move.left_right ~= Entity.new_int(0)) then
@@ -78,7 +78,6 @@ function jims_action(entity, eve, arg)
                                 entity.guy.canvas:cent(),
                                 Entity.new_func("CheckColision"):cent()) == 1
                             then
-                                
                                 CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(-5 * move.left_right,
                               -5 * move.up_down))
                                 print("Danger Colision")
@@ -242,11 +241,16 @@ function push_resource(resources, path, rect)
    return l
 end
 
-function init_new_cloth(main, path, isBuy)
+function init_new_cloth(main, path, price)
    local l = main.clothes:len()
+   local isBuy = 0
 
+   if price == 0 then
+      isBuy = 1
+   end
    main.clothes[l] = {}
    main.clothes[l].is_buy = isBuy
+   main.clothes[l].price = price
    main.clothes[l].resources = {}
 
    local rs = main.clothes[l].resources
@@ -261,12 +265,12 @@ end
 function init_pj(main, mainCanvas)
    main.clothes = {}
 
-   init_new_cloth(main, "Female_basic.png", 1)
-   init_new_cloth(main, "Female_pyjama.png", 1)
-   init_new_cloth(main, "Female_naked.png", 1)
-   init_new_cloth(main, "Female_dress.png", 0)
+   init_new_cloth(main, "Female_basic.png", 0)
+   init_new_cloth(main, "Female_pyjama.png", 10)
+   init_new_cloth(main, "Female_naked.png", 0)
+   init_new_cloth(main, "Female_dress.png", 40)
 
-   mainCanvas.resources = main.clothes[2].resources
+   mainCanvas.resources = main.clothes[0].resources
 end
 
 function init_room(ent, mainCanvas)
@@ -281,7 +285,6 @@ function init_room(ent, mainCanvas)
 				 "Greece.png", Rect.new(325, 192, 59, 64))
     ent.wall_id1 = push_resource(mainCanvas.ent.resources,
 				 "open_tileset.png", Rect.new(28, 34, 5, 15))
-    print(mainCanvas, mainCanvas.ent)
     local i = 0
     while i < 600 do
        mainCanvas:new_obj(i, -20, ent.wall_id0:to_int()):cent()
@@ -382,6 +385,8 @@ function swapToClothShop(entity)
 
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 0, "buy",
+		 Entity.new_func("cloth_buy"))
    setMenuAction(mainMenu, 1, "go to leakea",
 		 Entity.new_func("swapToShop"))
    setMenuAction(mainMenu, 2, "go home", "jims.house_time")

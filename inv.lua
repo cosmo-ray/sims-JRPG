@@ -18,7 +18,7 @@ function display_furniture(furn, invScreen, t, xThreshold, yThreshold)
 	 invScreen:new_img(pos, 20 + yThreshold, furn[t][i].path:to_string(),
 			   furn[t][i].rect)
 	 invScreen:new_text(1 + pos, 120 + yThreshold,
-			    Entity.new_string(furn[t][i].price:to_string()))
+			    Entity.new_string(furn[t][i].price:to_string() .. "$"))
 	 pos = pos + objWSize
       end
    end
@@ -40,14 +40,24 @@ end
 function init_clothes_shop_furnitur(main, invScreen)
    invScreen.nbFurniture = 0
    invScreen.posInfo = {}
+   invScreen.resources = {}
    invScreen = Canvas.wrapp(invScreen)
 
    for i = 0, invScreen.ent.objs:len() do
       invScreen:pop_back()
    end
 
+   local j = 0
    invScreen.ent.resources = {}
    for i = 0, main.clothes:len() do
+      if main.clothes[i] and main.clothes[i].is_buy:to_int() == 0 then
+	 invScreen.ent.resources[j] = main.clothes[i].resources[0]
+	 invScreen:new_obj(j * objWSize, 20, j)
+	 invScreen:new_text(j * objWSize, 0,
+			    Entity.new_string(main.clothes[i].price:to_string() .. "$"))
+
+	 j = j + 1
+      end
    end
 end
 
@@ -97,4 +107,8 @@ function shop_buy(entity)
    main[t].stat = newObj.furn.stat
    main.guy.money = main.guy.money - newObj.furn.price
    update_money(main)
+end
+
+function cloth_buy(entity)
+   print("buy new cloth yaayyyy")
 end
