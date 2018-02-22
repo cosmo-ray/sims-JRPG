@@ -45,7 +45,7 @@ function jims_action(entity, eve, arg)
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
 	 if eve:key() == Y_ESC_KEY then
-	    yFinishGame()
+	    yCallNextWidget(entity:cent());
 	    return YEVE_ACTION
 	 elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then move.up_down = -1
          elseif eve:key() == Y_S_KEY then move.up_down = 1

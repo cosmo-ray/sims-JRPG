@@ -23,6 +23,23 @@
         }
     ],
     "main" : {
-        "<type>" : "jims"
+        "<type>" : "menu",
+	"entries" : [
+	    {
+		"text" : "Play",
+		"next" : "jims:game",
+		"action" : "menuNext"
+	    },
+	    {
+		"text" : "Quit",
+		"action" : "FinishGame"
+	    }
+	],
+	"text-align" : "center",
+	"background" : "rgba: 255 255 255 255"
+    },
+    "game" : {
+        "<type>" : "jims",
+	"next" : "jims:main"
     }
 }
