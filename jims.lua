@@ -211,8 +211,8 @@ function init_furniture(main)
    cur.stat = {}
    cur.stat.energy = 50
    cur = add_furniture(main, "furniture", "bed",
-		       Rect.new(416, 152, 64, 90), "open_tileset.png",
-		       35, "besuto bed")
+		       Rect.new(896, 0, 64, 90), "Interior.png",
+		       50, "King's bed")
    cur.stat = {}
    cur.stat.energy = 100
    add_furniture(main, "furniture", "stove",
@@ -222,7 +222,7 @@ function init_furniture(main)
 		 Rect.new(0, 97, 32, 61), "open_tileset.png",
 		 15, "cold maiden")
    add_furniture(main, "furniture", "wc",
-		 Rect.new(3, 293, 27, 40), "open_tileset.png",
+		 Rect.new(899, 132, 26, 42), "Interior2.png",
 		 15, "free duke")
    add_furniture(main, "furniture", "shower",
 		 Rect.new(64, 256, 32, 90), "open_tileset.png",
@@ -278,7 +278,7 @@ function init_room(ent, mainCanvas)
     ent.fridge = mainCanvas:new_img(100, 65, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
     ent.stove = mainCanvas:new_img(132, 82, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
     ent.wc = mainCanvas:new_img(500, 82, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
-    ent.shower = mainCanvas:new_img(550, 87, "open_tileset.png", Rect.new(64, 256, 32, 90)):cent()
+    ent.shower = mainCanvas:new_img(550, 87, "Interior.png", Rect.new(708, 352, 22, 16)):cent()
     ent.radio = mainCanvas:new_img(300, 87, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
 
     ent.wall_id0 = push_resource(mainCanvas.ent.resources,
