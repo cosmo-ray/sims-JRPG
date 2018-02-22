@@ -37,7 +37,7 @@ function shoop_cursor_move(main, invScreen, move)
    CanvasObj.wrapp(invScreen.rect):set_pos(realPos:x(), realPos:y())
 end
 
-function init_clothes_shop_furnitur(main, invScreen)
+function init_clothes_furnitur(main, invScreen, shoud_be_buy)
    invScreen.nbFurniture = 0
    invScreen.posInfo = {}
    invScreen.resources = {}
@@ -48,17 +48,30 @@ function init_clothes_shop_furnitur(main, invScreen)
    end
 
    local j = 0
-   invScreen.ent.resources = {}
    for i = 0, main.clothes:len() do
-      if main.clothes[i] and main.clothes[i].is_buy:to_int() == 0 then
+      if main.clothes[i] and main.clothes[i].is_buy:to_int() == shoud_be_buy then
+	 invScreen.ent.posInfo[j] = {}
+	 local posInfo = invScreen.ent.posInfo[j]
+	 posInfo.furn = main.clothes[i]
+	 posInfo.pos = Pos.new(j * objWSize, 0).ent
+	 posInfo.realIdx = i
 	 invScreen.ent.resources[j] = main.clothes[i].resources[0]
 	 invScreen:new_obj(j * objWSize, 20, j)
-	 invScreen:new_text(j * objWSize, 0,
-			    Entity.new_string(main.clothes[i].price:to_string() .. "$"))
+	 if shoud_be_buy == 0 then
+	    invScreen:new_text(j * objWSize, 0,
+			       Entity.new_string(main.clothes[i].price:to_string() .. "$"))
+	 end
 
 	 j = j + 1
       end
    end
+   invScreen.ent.nbFurniture = j
+   local rect = Entity.new_array()
+   rect[0] = Pos.new(objWSize, objHSize).ent;
+   rect[1] = "rgba: 127 0 0 100";
+   invScreen.ent.rect = invScreen:new_rect(0, 0, rect):cent()
+   invScreen.ent.current_pos = 0
+
 end
 
 function init_shop_furnitur(main, invScreen, furn)
@@ -110,5 +123,82 @@ function shop_buy(entity)
 end
 
 function cloth_buy(entity)
-   print("buy new cloth yaayyyy")
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local invScreen = main.invScreen
+   local newObj = invScreen.posInfo[invScreen.current_pos:to_int()]
+   if (main.guy.money - newObj.furn.price < 0) then
+      display_text(main, "you're too poor for that", 20, 300)
+      return
+   end
+   if newObj.furn.is_buy:to_int() == 1 then
+      display_text(main, "I alerady have that", 20, 300)
+      return
+   end
+   display_text(main, "congratulation, a new cloth is in you invenory", 20, 300)
+   newObj.furn.is_buy = 1
+   main.guy.money = main.guy.money - newObj.furn.price
+   update_money(main)
+end
+
+function ware_cloth(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local invScreen = main.invScreen
+   local obj = invScreen.posInfo[invScreen.current_pos:to_int()]
+
+   print("change to", obj.realIdx:to_int(),
+	 main.clothes[obj.realIdx:to_int()].resources,
+	 main.mainScreen.resources)
+   main.mainScreen.resources = main.clothes[obj.realIdx:to_int()].resources
+   ywCanvasObjClearCache(main.guy.canvas:cent())
+end
+
+function swapToClothShop(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+   local invScreen = Entity.wrapp(main).invScreen
+
+   ywReplaceEntry(main, 0, invScreen:cent())
+   cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 0, "buy",
+		 Entity.new_func("cloth_buy"))
+   setMenuAction(mainMenu, 1, "go to leakea",
+		 Entity.new_func("swapToShop"))
+   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   main = Entity.wrapp(main)
+   main.guy.movable = 0
+   init_clothes_furnitur(main, invScreen, 0)
+end
+
+function swapToChangeCloth(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local invScreen = main.invScreen
+
+   ywReplaceEntry(main:cent(), 0, invScreen:cent())
+   cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 0, "ware",
+		 Entity.new_func("ware_cloth"))
+   setMenuAction(mainMenu, 1, "close", "jims.house_time")
+   main.guy.movable = 0
+   init_clothes_furnitur(main, invScreen, 1)
+end
+
+function swapToShop(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = ywCntWidgetFather(mainMenu:cent())
+   local invScreen = Entity.wrapp(main).invScreen
+
+   -- init combat
+   ywReplaceEntry(main, 0, invScreen:cent())
+   cleanMenuAction(mainMenu)
+   setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
+   setMenuAction(mainMenu, 1, "go to cloth shop",
+		 Entity.new_func("swapToClothShop"))
+   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   main = Entity.wrapp(main)
+   init_shop_furnitur(main, invScreen, main.furniture)
+   Entity.wrapp(main).guy.movable = 0
+   return YEVE_ACTION
 end

@@ -167,14 +167,15 @@ function swapToHouse(entity)
    local main = ywCntWidgetFather(mainMenu:cent())
 
    setMenuAction(mainMenu, 0, "fight now", "jims.fight_time")
-   setMenuAction(mainMenu, 1, "buy stuff", "jims.shop_time")
-   setMenuAction(mainMenu, 2, "sleep", Entity.new_func("sleep"))
-   setMenuAction(mainMenu, 3, "wash yourself", Entity.new_func("wash_yourself"))
-   setMenuAction(mainMenu, 4, "have_fun", Entity.new_func("have_fun"))
-   setMenuAction(mainMenu, 5, "eat", Entity.new_func("eat"))
-   setMenuAction(mainMenu, 6, "go_to_the_toilet",
+   setMenuAction(mainMenu, 1, "inventory", Entity.new_func("swapToChangeCloth"))
+   setMenuAction(mainMenu, 2, "buy stuff", "jims.shop_time")
+   setMenuAction(mainMenu, 3, "sleep", Entity.new_func("sleep"))
+   setMenuAction(mainMenu, 4, "wash yourself", Entity.new_func("wash_yourself"))
+   setMenuAction(mainMenu, 5, "have fun", Entity.new_func("have_fun"))
+   setMenuAction(mainMenu, 6, "eat", Entity.new_func("eat"))
+   setMenuAction(mainMenu, 7, "go to the toilet",
 		 Entity.new_func("go_to_the_toilet"))
-   setMenuAction(mainMenu, 7, "quit", "FinishGame")
+   setMenuAction(mainMenu, 8, "quit", "FinishGame")
 
    Entity.wrapp(main).guy.movable = 1
 
@@ -374,41 +375,6 @@ function swapToFight(entity)
    setMenuAction(mainMenu, 0, "work", "jims.attack")
    jimsFSAddGuy(main, Canvas.wrapp(fScreen), widSize, badGuy)
 
-   Entity.wrapp(main).guy.movable = 0
-   return YEVE_ACTION
-end
-
-function swapToClothShop(entity)
-   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
-   local main = ywCntWidgetFather(mainMenu:cent())
-   local invScreen = Entity.wrapp(main).invScreen
-
-   ywReplaceEntry(main, 0, invScreen:cent())
-   cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy",
-		 Entity.new_func("cloth_buy"))
-   setMenuAction(mainMenu, 1, "go to leakea",
-		 Entity.new_func("swapToShop"))
-   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
-   main = Entity.wrapp(main)
-   Entity.wrapp(main).guy.movable = 0
-   init_clothes_shop_furnitur(main, invScreen)
-end
-
-function swapToShop(entity)
-   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
-   local main = ywCntWidgetFather(mainMenu:cent())
-   local invScreen = Entity.wrapp(main).invScreen
-
-   -- init combat
-   ywReplaceEntry(main, 0, invScreen:cent())
-   cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
-   setMenuAction(mainMenu, 1, "go to cloth shop",
-		 Entity.new_func("swapToClothShop"))
-   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
-   main = Entity.wrapp(main)
-   init_shop_furnitur(main, invScreen, main.furniture)
    Entity.wrapp(main).guy.movable = 0
    return YEVE_ACTION
 end
