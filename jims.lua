@@ -41,6 +41,7 @@ function jims_action(entity, eve, arg)
    local guy = entity.guy
    local return_not_handle = false
 
+
    while eve:is_end() == false do
         if eve:type() == YKEY_DOWN then
 	        if eve:key() == Y_ESC_KEY then
@@ -49,15 +50,19 @@ function jims_action(entity, eve, arg)
             elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then 
                 move.up_down = -1
                 ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
+                guy.current_id = 1
             elseif eve:key() == Y_S_KEY then 
                 move.up_down = 1
                 ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
+                guy.current_id = 0
             elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then 
                 move.left_right = -1
                 ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
+                guy.current_id = 2
             elseif eve:key() == Y_D_KEY then 
                 move.left_right = 1
                 ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
+                guy.current_id = 3
             elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
 	            return_not_handle = true
 	        elseif eve:key() == Y_LEFT_KEY then
@@ -71,16 +76,22 @@ function jims_action(entity, eve, arg)
             elseif eve:is_key_left() or eve:is_key_right() or eve:key() == Y_Q_KEY then
 	            move.left_right = 0
             end
-
+            entity.step = 0
         end
       eve = eve:next()
    end
-
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
-				     move.left_right ~= Entity.new_int(0)) then
-      CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
-                              5 * move.up_down))
+                     move.left_right ~= Entity.new_int(0)) then    
+        entity.step = entity.step + 1
+        ywCanvasObjSetResourceId(guy.canvas:cent(), ((entity.step:to_int() % 2) * 4
+         + (guy.current_id)))
+        --print(entity.step)
+        --print((entity.step:to_int() % 2))
+        --print(guy.current_id)
+        --print(guy.canvas:cent(), ((entity.step:to_int() % 2) * 4 + (guy.current_id)))    
+        CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
+        5 * move.up_down))
                             if ywCanvasCheckCollisions(entity.mainScreen:cent(),
                                 entity.guy.canvas:cent(),
                                 Entity.new_func("CheckColision"):cent()) == 1
@@ -265,7 +276,10 @@ function init_new_cloth(main, path, price)
    basic_back_pos = push_resource(rs, path, Rect.new(16, 525, 32, 51))
    basic_left_pos = push_resource(rs, path, Rect.new(16, 588, 32, 51))
    basic_right_pos = push_resource(rs, path, Rect.new(16, 715, 32, 51))
-
+   step_front_pos = push_resource(rs, path, Rect.new(208, 652, 32, 51))
+   step_back_pos = push_resource(rs, path, Rect.new(208, 525, 32, 51))
+   step_left_pos = push_resource(rs, path, Rect.new(208, 588, 32, 51))
+   step_right_pos = push_resource(rs, path, Rect.new(208, 715, 32, 51))
    return l
 end
 
@@ -411,6 +425,7 @@ function create_jims(entity)
 
    -- create widget
    ent["turn-length"] = 10000
+   ent.step = 0
    ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
