@@ -42,29 +42,37 @@ function jims_action(entity, eve, arg)
    local return_not_handle = false
 
    while eve:is_end() == false do
-      if eve:type() == YKEY_DOWN then
-	 if eve:key() == Y_ESC_KEY then
-	    yCallNextWidget(entity:cent());
-	    return YEVE_ACTION
-	 elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then move.up_down = -1
-         elseif eve:key() == Y_S_KEY then move.up_down = 1
-         elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then move.left_right = -1
-         elseif eve:key() == Y_D_KEY then move.left_right = 1
-	 elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
-	    return_not_handle = true
-	 elseif eve:key() == Y_LEFT_KEY then
-	    move.left_right = -1
-	 elseif eve:key() == Y_RIGHT_KEY then
-	    move.left_right = 1
-         end
-      elseif eve:type() == YKEY_UP then
-         if eve:is_key_up() or eve:is_key_down() or eve:key() == Y_Z_KEY
-         then move.up_down = 0
-         elseif eve:is_key_left() or eve:is_key_right() or eve:key() == Y_Q_KEY then
-	    move.left_right = 0
-         end
+        if eve:type() == YKEY_DOWN then
+	        if eve:key() == Y_ESC_KEY then
+	            yCallNextWidget(entity:cent());
+	            return YEVE_ACTION
+            elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then 
+                move.up_down = -1
+                ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
+            elseif eve:key() == Y_S_KEY then 
+                move.up_down = 1
+                ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
+            elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then 
+                move.left_right = -1
+                ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
+            elseif eve:key() == Y_D_KEY then 
+                move.left_right = 1
+                ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
+            elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
+	            return_not_handle = true
+	        elseif eve:key() == Y_LEFT_KEY then
+	            move.left_right = -1
+	        elseif eve:key() == Y_RIGHT_KEY then
+	            move.left_right = 1
+            end
+        elseif eve:type() == YKEY_UP then
+            if eve:is_key_up() or eve:is_key_down() or eve:key() == Y_Z_KEY
+                then move.up_down = 0
+            elseif eve:is_key_left() or eve:is_key_right() or eve:key() == Y_Q_KEY then
+	            move.left_right = 0
+            end
 
-      end
+        end
       eve = eve:next()
    end
 
@@ -452,6 +460,5 @@ function create_jims(entity)
    init_pj(ent, mainCanvas.ent)
    init_room(ent, mainCanvas)
    ent.guy.canvas = mainCanvas:new_obj(150, 150, basic_front_pos):cent()
-
    return ret
 end
