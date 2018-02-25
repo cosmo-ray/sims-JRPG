@@ -49,19 +49,19 @@ function jims_action(entity, eve, arg)
 	            return YEVE_ACTION
             elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then 
                 move.up_down = -1
-                ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
+                --ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
                 guy.current_id = 1
             elseif eve:key() == Y_S_KEY then 
                 move.up_down = 1
-                ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
+                --ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
                 guy.current_id = 0
             elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then 
                 move.left_right = -1
-                ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
+                --ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
                 guy.current_id = 2
             elseif eve:key() == Y_D_KEY then 
                 move.left_right = 1
-                ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
+                --ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
                 guy.current_id = 3
             elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
 	            return_not_handle = true
@@ -83,13 +83,15 @@ function jims_action(entity, eve, arg)
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
                      move.left_right ~= Entity.new_int(0)) then    
-        entity.step = entity.step + 1
-        ywCanvasObjSetResourceId(guy.canvas:cent(), ((entity.step:to_int() % 2) * 4
+
+        if (entity.step:to_int() % 10 == 0) then ywCanvasObjSetResourceId(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4
          + (guy.current_id)))
         --print(entity.step)
-        --print((entity.step:to_int() % 2))
+        --print((entity.step:to_int() % 4))
         --print(guy.current_id)
-        --print(guy.canvas:cent(), ((entity.step:to_int() % 2) * 4 + (guy.current_id)))    
+        --print(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4 + (guy.current_id)))
+        end
+        entity.step = entity.step + 1    
         CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
         5 * move.up_down))
                             if ywCanvasCheckCollisions(entity.mainScreen:cent(),
@@ -276,10 +278,18 @@ function init_new_cloth(main, path, price)
    basic_back_pos = push_resource(rs, path, Rect.new(16, 525, 32, 51))
    basic_left_pos = push_resource(rs, path, Rect.new(16, 588, 32, 51))
    basic_right_pos = push_resource(rs, path, Rect.new(16, 715, 32, 51))
-   step_front_pos = push_resource(rs, path, Rect.new(208, 652, 32, 51))
-   step_back_pos = push_resource(rs, path, Rect.new(208, 525, 32, 51))
-   step_left_pos = push_resource(rs, path, Rect.new(208, 588, 32, 51))
-   step_right_pos = push_resource(rs, path, Rect.new(208, 715, 32, 51))
+   step1_front_pos = push_resource(rs, path, Rect.new(144, 652, 32, 51))
+   step1_back_pos = push_resource(rs, path, Rect.new(144, 525, 32, 51))
+   step1_left_pos = push_resource(rs, path, Rect.new(144, 588, 32, 51))
+   step1_right_pos = push_resource(rs, path, Rect.new(144, 715, 32, 51))
+   step2_front_pos = push_resource(rs, path, Rect.new(208, 652, 32, 51))
+   step2_back_pos = push_resource(rs, path, Rect.new(208, 525, 32, 51))
+   step2_left_pos = push_resource(rs, path, Rect.new(208, 588, 32, 51))
+   step2_right_pos = push_resource(rs, path, Rect.new(208, 715, 32, 51))
+   step3_front_pos = push_resource(rs, path, Rect.new(399, 652, 32, 51))
+   step3_back_pos = push_resource(rs, path, Rect.new(399, 525, 32, 51))
+   step3_left_pos = push_resource(rs, path, Rect.new(399, 588, 32, 51))
+   step3_right_pos = push_resource(rs, path, Rect.new(399, 715, 32, 51))
    return l
 end
 
