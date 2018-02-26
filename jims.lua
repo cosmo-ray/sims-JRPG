@@ -47,19 +47,19 @@ function jims_action(entity, eve, arg)
 	        if eve:key() == Y_ESC_KEY then
 	            yCallNextWidget(entity:cent());
 	            return YEVE_ACTION
-            elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then 
+            elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then
                 move.up_down = -1
                 --ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
                 guy.current_id = 1
-            elseif eve:key() == Y_S_KEY then 
+            elseif eve:key() == Y_S_KEY then
                 move.up_down = 1
                 --ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
                 guy.current_id = 0
-            elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then 
+            elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then
                 move.left_right = -1
                 --ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
                 guy.current_id = 2
-            elseif eve:key() == Y_D_KEY then 
+            elseif eve:key() == Y_D_KEY then
                 move.left_right = 1
                 --ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
                 guy.current_id = 3
@@ -82,7 +82,8 @@ function jims_action(entity, eve, arg)
    end
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
-                     move.left_right ~= Entity.new_int(0)) then    
+
+                     move.left_right ~= Entity.new_int(0)) then
 
         if (entity.step:to_int() % 10 == 0) then ywCanvasObjSetResourceId(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4
          + (guy.current_id)))
@@ -91,7 +92,7 @@ function jims_action(entity, eve, arg)
         --print(guy.current_id)
         --print(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4 + (guy.current_id)))
         end
-        entity.step = entity.step + 1    
+        entity.step = entity.step + 1
         CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
         5 * move.up_down))
                             if ywCanvasCheckCollisions(entity.mainScreen:cent(),
@@ -418,6 +419,14 @@ function update_money(main)
 		      Entity.new_string(main.guy.money:to_int()))
 end
 
+function remove_jims(entity)
+   entity = Entity.wrapp(entity)
+   entity.mainScreen = nil
+   entity.fightScreen = nil
+   entity.invScreen = nil
+   entity.menuCnt = nil
+end
+
 function create_jims(entity)
    local container = Container.init_entity(entity, "horizontal")
    local ent = container.ent
@@ -435,17 +444,18 @@ function create_jims(entity)
 
    -- create widget
    ent["turn-length"] = 10000
+   ent.destroy = Entity.new_func("remove_jims")
    ent.step = 0
    ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
    Entity.new_func("jims_action", ent, "action")
-   Entity.new_func("jims_destroy", ent, "destroy")
 
    ent.background = "rgba: 255 255 127 255"
    local mainCanvas = Canvas.new_entity(entity, "mainScreen")
    local fightCanvas = Canvas.new_entity(entity, "fightScreen")
    local invCanvas = Canvas.new_entity(entity, "invScreen")
+   ent.entries = {}
    ent.entries[0] = mainCanvas.ent  -- game screen
    ent.entries[0].size = 70
    ent.current = 1
