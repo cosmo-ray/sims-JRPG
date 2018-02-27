@@ -109,7 +109,8 @@ function jims_action(entity, eve, arg)
 
                      move.left_right ~= Entity.new_int(0)) then
 
-        if (entity.step:to_int() % 10 == 0) then ywCanvasObjSetResourceId(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4
+      if (entity.step:to_int() % 5 == 0) then
+	 ywCanvasObjSetResourceId(guy.canvas:cent(), (((entity.step:to_int() / 5) % 4) * 4
          + (guy.current_id)))
         --print(entity.step)
         --print((entity.step:to_int() % 4))
@@ -519,7 +520,7 @@ function create_jims(entity)
    ent.guy.attack = Entity.new_func("attackTheWork")
 
    -- create widget
-   ent["turn-length"] = 10000
+   ent["turn-length"] = 30000
    ent.destroy = Entity.new_func("remove_jims")
    ent.step = 0
    ent.move = {}
