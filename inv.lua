@@ -4,7 +4,7 @@ local objHSize = 140
 function display_furniture(furn, invScreen, t, xThreshold, yThreshold)
    local pos = 0 + xThreshold
 
-   for i = 0, furn[t]:len() do
+   for i = 1, furn[t]:len() do
       if furn[t][i] then
 	 invScreen.ent.posInfo[invScreen.ent.nbFurniture:to_int()] = {}
 	 local posInfo = invScreen.ent.posInfo[invScreen.ent.nbFurniture:to_int()]
@@ -12,6 +12,7 @@ function display_furniture(furn, invScreen, t, xThreshold, yThreshold)
 	 posInfo.furn = furn[t][i]
 	 posInfo.pos = Pos.new(pos, yThreshold).ent
 	 posInfo.type = t
+	 posInfo.realIdx = i
 
 	 invScreen:new_text(1 + pos, 0 + yThreshold,
 			    Entity.new_string(furn[t][i].name:to_string()))
@@ -22,7 +23,7 @@ function display_furniture(furn, invScreen, t, xThreshold, yThreshold)
 	 pos = pos + objWSize
       end
    end
-   return furn[t]:len()
+   return furn[t]:len() - 1
 end
 
 function shoop_cursor_move(main, invScreen, move)
@@ -55,6 +56,7 @@ function init_clothes_furnitur(main, invScreen, shoud_be_buy)
 	 posInfo.furn = main.clothes[i]
 	 posInfo.pos = Pos.new(j * objWSize, 0).ent
 	 posInfo.realIdx = i
+	 posInfo.name = main.clothes[i].name
 	 invScreen.ent.resources[j] = main.clothes[i].resources[0]
 	 invScreen:new_obj(j * objWSize, 20, j)
 	 if shoud_be_buy == 0 then
@@ -118,6 +120,8 @@ function shop_buy(entity)
 				   newObj.furn.path:to_string(),
 				   newObj.furn.rect):cent()
    main[t].stat = newObj.furn.stat
+   print("realIdx", newObj.realIdx)
+   main.cur_objs[t] = newObj.realIdx
    main.guy.money = main.guy.money - newObj.furn.price
    update_money(main)
 end
@@ -138,6 +142,7 @@ function cloth_buy(entity)
    display_text(main, "congratulation, a new cloth is in you invenory", 20, 300)
    newObj.furn.is_buy = 1
    main.guy.money = main.guy.money - newObj.furn.price
+   main["has_" .. newObj.furn.name:to_string()] = 1
    update_money(main)
 end
 

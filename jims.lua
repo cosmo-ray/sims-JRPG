@@ -1,10 +1,34 @@
 function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
 
+   Entity.wrapp(mod).load_game = Entity.new_func("load_game")
    Entity.wrapp(mod).fight_time = Entity.new_func("swapToFight")
    Entity.wrapp(mod).house_time = Entity.new_func("swapToHouse")
    Entity.wrapp(mod).shop_time = Entity.new_func("swapToShop")
    Entity.wrapp(mod).attack = Entity.new_func("jimsFSAttackGuy")
+end
+
+function saveAndQuit(entity)
+   local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
+   local main = Entity.wrapp(ywCntWidgetFather(mainMenu:cent()))
+   local saved_data = Entity.new_array()
+
+   saved_data.guy = main.guy
+   saved_data.guy.canvas = nil
+   saved_data.has_pyjama = main.has_pyjama
+   saved_data.has_dress = main.has_dress
+   saved_data.cur_objs = main.cur_objs
+   ygEntToFile(YJSON, "./saved.json", saved_data:cent())
+   yCallNextWidget(main:cent());
+   return YEVE_ACTION
+end
+
+function load_game(entity)
+   local game = ygGet("jims.game")
+   local ent = ygFileToEnt(YJSON, "./saved.json")
+   Entity.wrapp(game).saved_data = ent
+   yeDestroy(ent)
+   yCallNextWidget(entity);
 end
 
 function display_text_timer(main, anim)
@@ -189,16 +213,17 @@ function swapToHouse(entity)
    setMenuAction(mainMenu, 0, "fight now", "jims.fight_time")
    setMenuAction(mainMenu, 1, "inventory", Entity.new_func("swapToChangeCloth"))
    setMenuAction(mainMenu, 2, "buy stuff", "jims.shop_time")
-   setMenuAction(mainMenu, 3, "sleep", Entity.new_func("sleep"))
-   setMenuAction(mainMenu, 4, "wash yourself", Entity.new_func("wash_yourself"))
-   setMenuAction(mainMenu, 5, "have fun", Entity.new_func("have_fun"))
-   setMenuAction(mainMenu, 6, "eat", Entity.new_func("eat"))
-   setMenuAction(mainMenu, 7, "go to the toilet",
+   --setMenuAction(mainMenu, 3, "sleep", Entity.new_func("sleep"))
+   --setMenuAction(mainMenu, 4, "wash yourself", Entity.new_func("wash_yourself"))
+   setMenuAction(mainMenu, 3, "have fun", Entity.new_func("have_fun"))
+   setMenuAction(mainMenu, 4, "eat", Entity.new_func("eat"))
+   setMenuAction(mainMenu, 5, "go to the toilet",
 		 Entity.new_func("go_to_the_toilet"))
-   setMenuAction(mainMenu, 8, "quit", "FinishGame")
+   setMenuAction(mainMenu, 6, "quit", "callNext")
+   setMenuAction(mainMenu, 7, "save and quit", Entity.new_func("saveAndQuit"))
 
    Entity.wrapp(main).guy.movable = 1
-
+   Entity.wrapp(entity).next = Entity.wrapp(main).next
    ywReplaceEntry(main, 0, Entity.wrapp(main).mainScreen:cent())
    return YEVE_ACTION
 end
@@ -226,9 +251,13 @@ function init_furniture(main)
 
    -- bed time
    local cur = add_furniture(main, "furniture", "bed",
-			     Rect.new(416, 102, 64, 90),
-			     "open_tileset.png",
-			     20, "sleepy Pi")
+		       Rect.new(680, 505, 48, 71), "Interior.png",
+		       50, "erkk bed")
+
+   cur = add_furniture(main, "furniture", "bed",
+		       Rect.new(416, 102, 64, 90),
+		       "open_tileset.png",
+		       20, "sleepy Pi")
    cur.stat = {}
    cur.stat.energy = 50
    cur = add_furniture(main, "furniture", "bed",
@@ -238,13 +267,25 @@ function init_furniture(main)
    cur.stat.energy = 100
    add_furniture(main, "furniture", "stove",
 		 Rect.new(32, 114, 31, 44), "open_tileset.png",
+		 15, "erkk stove")
+   add_furniture(main, "furniture", "stove",
+		 Rect.new(32, 114, 31, 44), "open_tileset.png",
 		 15, "hot steve")
+   add_furniture(main, "furniture", "fridge",
+		 Rect.new(0, 97, 32, 61), "open_tileset.png",
+		 15, "erkk fridge")
    add_furniture(main, "furniture", "fridge",
 		 Rect.new(0, 97, 32, 61), "open_tileset.png",
 		 15, "cold maiden")
    add_furniture(main, "furniture", "wc",
+		 Rect.new(3, 293, 27, 40), "open_tileset.png",
+		 15, "erkk wc")
+   add_furniture(main, "furniture", "wc",
 		 Rect.new(899, 132, 26, 42), "Interior2.png",
 		 15, "free duke")
+   add_furniture(main, "furniture", "shower",
+		 Rect.new(708, 352, 22, 16), "Interior.png",
+		 15, "erkk shower")
    add_furniture(main, "furniture", "shower",
 		 Rect.new(64, 256, 32, 90), "open_tileset.png",
 		 15, "clean clea")
@@ -262,7 +303,7 @@ function push_resource(resources, path, rect)
    return l
 end
 
-function init_new_cloth(main, path, price)
+function init_new_cloth(main, path, price, name)
    local l = main.clothes:len()
    local isBuy = 0
 
@@ -272,6 +313,7 @@ function init_new_cloth(main, path, price)
    main.clothes[l] = {}
    main.clothes[l].is_buy = isBuy
    main.clothes[l].price = price
+   main.clothes[l].name = name
    main.clothes[l].resources = {}
 
    local rs = main.clothes[l].resources
@@ -294,28 +336,50 @@ function init_new_cloth(main, path, price)
    return l
 end
 
-function init_pj(main, mainCanvas)
+function init_pj(main, mainCanvas, saved_data)
    main.clothes = {}
 
    init_new_cloth(main, "Female_basic.png", 0)
-   init_new_cloth(main, "Female_pyjama.png", 10)
+   if saved_data.has_pyjama then
+      init_new_cloth(main, "Female_pyjama.png", 0)
+   else
+      init_new_cloth(main, "Female_pyjama.png", 10, "pyjama")
+   end
    init_new_cloth(main, "Female_naked.png", 0)
-   init_new_cloth(main, "Female_dress.png", 40)
-
+   if saved_data.has_dress then
+      init_new_cloth(main, "Female_dress.png", 0)
+   else
+      init_new_cloth(main, "Female_dress.png", 40, "dress")
+   end
    mainCanvas.resources = main.clothes[0].resources
 end
 
 function init_room(ent, mainCanvas)
-    ent.bed = mainCanvas:new_img(10, 65, "Interior.png", Rect.new(680, 505, 48, 71)):cent()
-    ent.fridge = mainCanvas:new_img(100, 65, "open_tileset.png", Rect.new(0, 97, 32, 61)):cent()
-    ent.stove = mainCanvas:new_img(132, 82, "open_tileset.png", Rect.new(32, 114, 31, 44)):cent()
-    ent.wc = mainCanvas:new_img(500, 82, "open_tileset.png", Rect.new(3, 293, 27, 40)):cent()
-    ent.shower = mainCanvas:new_img(550, 87, "Interior.png", Rect.new(708, 352, 22, 16)):cent()
-    ent.radio = mainCanvas:new_img(300, 87, "open_tileset.png", Rect.new(192, 108, 32, 52)):cent()
+   local f = ent.furniture
 
-    ent.wall_id0 = push_resource(mainCanvas.ent.resources,
+   local idx = ent.cur_objs.bed:to_int()
+   print("bed", idx)
+   ent.bed = mainCanvas:new_img(10, 65, f.bed[idx].path:to_string(),
+				f.bed[idx].rect):cent()
+   idx = ent.cur_objs.fridge:to_int()
+   ent.fridge = mainCanvas:new_img(100, 65, f.fridge[idx].path:to_string(),
+				   f.fridge[idx].rect):cent()
+   idx = ent.cur_objs.stove:to_int()
+   ent.stove = mainCanvas:new_img(132, 82, f.stove[idx].path:to_string(),
+				  f.stove[idx].rect):cent()
+   idx = ent.cur_objs.wc:to_int()
+   ent.wc = mainCanvas:new_img(500, 82, f.wc[idx].path:to_string(),
+			       f.wc[idx].rect):cent()
+   idx = ent.cur_objs.shower:to_int()
+   ent.shower = mainCanvas:new_img(550, 87, f.shower[idx].path:to_string(),
+				   f.shower[idx].rect):cent()
+   idx = ent.cur_objs.radio:to_int()
+   ent.radio = mainCanvas:new_img(300, 87, f.radio[idx].path:to_string(),
+				  f.radio[idx].rect):cent()
+
+   ent.wall_id0 = push_resource(mainCanvas.ent.resources,
 				 "Greece.png", Rect.new(325, 192, 59, 64))
-    ent.wall_id1 = push_resource(mainCanvas.ent.resources,
+   ent.wall_id1 = push_resource(mainCanvas.ent.resources,
 				 "open_tileset.png", Rect.new(28, 34, 5, 15))
     local i = 0
     while i < 600 do
@@ -432,14 +496,26 @@ function create_jims(entity)
    local ent = container.ent
 
    -- create good guy
-   ent.guy = {}
-   ent.guy.bars = {}
-   ent.guy.money = 27
-   ent.guy.hygien = 100
-   ent.guy.fun = 10
-   ent.guy.energy = 100
-   ent.guy.hunger = 100
-   ent.guy.bladder = 100
+   if ent.saved_data then
+      ent.guy = ent.saved_data.guy
+      ent.cur_objs = ent.saved_data.cur_objs
+   else
+      ent.guy = {}
+      ent.guy.bars = {}
+      ent.guy.money = 27
+      ent.guy.hygien = 100
+      ent.guy.fun = 10
+      ent.guy.energy = 100
+      ent.guy.hunger = 100
+      ent.guy.bladder = 100
+      ent.cur_objs = {}
+      ent.cur_objs.bed = 0
+      ent.cur_objs.fridge = 0
+      ent.cur_objs.stove = 0
+      ent.cur_objs.wc = 0
+      ent.cur_objs.shower = 0
+      ent.cur_objs.radio = 0
+   end
    ent.guy.attack = Entity.new_func("attackTheWork")
 
    -- create widget
@@ -492,8 +568,12 @@ function create_jims(entity)
    local mn = menu_cnt.ent.entries[0]
    swapToHouse(mn:cent())
    init_furniture(ent)
-   init_pj(ent, mainCanvas.ent)
+   if ent.saved_data == nil then
+      ent.saved_data = {}
+   end
+   init_pj(ent, mainCanvas.ent, ent.saved_data)
    init_room(ent, mainCanvas)
    ent.guy.canvas = mainCanvas:new_obj(150, 150, basic_front_pos):cent()
+   ent.saved_data = nil
    return ret
 end

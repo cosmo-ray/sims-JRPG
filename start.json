@@ -27,8 +27,11 @@
 	"entries" : [
 	    {
 		"text" : "Play",
-		"next" : "jims:game",
-		"action" : "menuNext"
+		"action" : "callNext"
+	    },
+	    {
+		"text" : "Continue",
+		"action" : "jims:load_game"
 	    },
 	    {
 		"text" : "Full Screen",
@@ -39,6 +42,7 @@
 		"action" : "FinishGame"
 	    }
 	],
+	"next" : "jims:game",
 	"text-align" : "center",
 	"background" : "rgba: 255 255 255 255"
     },
