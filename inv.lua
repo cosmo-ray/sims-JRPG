@@ -166,11 +166,11 @@ function swapToClothShop(entity)
 
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy",
+   setMenuAction(mainMenu, "buy",
 		 Entity.new_func("cloth_buy"))
-   setMenuAction(mainMenu, 1, "go to leakea",
+   setMenuAction(mainMenu, "go to leakea",
 		 Entity.new_func("swapToShop"))
-   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   setMenuAction(mainMenu, "go home", "jims.house_time")
    main = Entity.wrapp(main)
    main.guy.movable = 0
    init_clothes_furnitur(main, invScreen, 0)
@@ -183,9 +183,9 @@ function swapToChangeCloth(entity)
 
    ywReplaceEntry(main:cent(), 0, invScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "ware",
+   setMenuAction(mainMenu, "ware",
 		 Entity.new_func("ware_cloth"))
-   setMenuAction(mainMenu, 1, "close", "jims.house_time")
+   setMenuAction(mainMenu, "close", "jims.house_time")
    main.guy.movable = 0
    init_clothes_furnitur(main, invScreen, 1)
 end
@@ -198,10 +198,10 @@ function swapToShop(entity)
    -- init combat
    ywReplaceEntry(main, 0, invScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "buy", Entity.new_func("shop_buy"))
-   setMenuAction(mainMenu, 1, "go to cloth shop",
+   setMenuAction(mainMenu, "buy", Entity.new_func("shop_buy"))
+   setMenuAction(mainMenu, "go to cloth shop",
 		 Entity.new_func("swapToClothShop"))
-   setMenuAction(mainMenu, 2, "go home", "jims.house_time")
+   setMenuAction(mainMenu, "go home", "jims.house_time")
    main = Entity.wrapp(main)
    init_shop_furnitur(main, invScreen, main.furniture)
    Entity.wrapp(main).guy.movable = 0

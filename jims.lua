@@ -1,3 +1,10 @@
+local near_door = 1
+local near_bed = 2
+local near_radio = 4
+local near_fridge = 8
+local near_wc = 16
+local near_shower = 32
+
 function init_jims(mod)
    Widget.new_subtype("jims", "create_jims")
 
@@ -73,19 +80,15 @@ function jims_action(entity, eve, arg)
 	            return YEVE_ACTION
             elseif eve:key() == Y_W_KEY or eve:key() == Y_Z_KEY then
                 move.up_down = -1
-                --ywCanvasObjSetResourceId(guy.canvas:cent(), 1)
                 guy.current_id = 1
             elseif eve:key() == Y_S_KEY then
                 move.up_down = 1
-                --ywCanvasObjSetResourceId(guy.canvas:cent(), 0)
                 guy.current_id = 0
             elseif eve:key() == Y_A_KEY or eve:key() == Y_Q_KEY then
                 move.left_right = -1
-                --ywCanvasObjSetResourceId(guy.canvas:cent(), 2)
                 guy.current_id = 2
             elseif eve:key() == Y_D_KEY then
                 move.left_right = 1
-                --ywCanvasObjSetResourceId(guy.canvas:cent(), 3)
                 guy.current_id = 3
             elseif eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then
 	            return_not_handle = true
@@ -107,26 +110,24 @@ function jims_action(entity, eve, arg)
    doAnimation(entity, "txt_anim")
    if guy.movable:to_int() == 1 and (move.up_down ~= Entity.new_int(0) or
 
-                     move.left_right ~= Entity.new_int(0)) then
+				     move.left_right ~= Entity.new_int(0)) then
 
       if (entity.step:to_int() % 5 == 0) then
 	 ywCanvasObjSetResourceId(guy.canvas:cent(), (((entity.step:to_int() / 5) % 4) * 4
-         + (guy.current_id)))
-        --print(entity.step)
-        --print((entity.step:to_int() % 4))
-        --print(guy.current_id)
-        --print(guy.canvas:cent(), (((entity.step:to_int() / 10) % 4) * 4 + (guy.current_id)))
-        end
-        entity.step = entity.step + 1
-        CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
-        5 * move.up_down))
-                            if ywCanvasCheckCollisions(entity.mainScreen:cent(),
-                                entity.guy.canvas:cent(),
-                                Entity.new_func("CheckColision"):cent()) == 1
-                            then
-                                CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(-5 * move.left_right,
-                              -5 * move.up_down))
-                            end
+						      + (guy.current_id)))
+      end
+      entity.step = entity.step + 1
+      CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(5 * move.left_right,
+						      5 * move.up_down))
+      if ywCanvasCheckCollisions(entity.mainScreen:cent(),
+				 entity.guy.canvas:cent(),
+				 Entity.new_func("CheckColision"):cent()) == 1
+      then
+	 CanvasObj.wrapp(entity.guy.canvas):move(Pos.new(-5 * move.left_right,
+							 -5 * move.up_down))
+      else
+	 updateMainMenu2(entity, entity.menuCnt)
+      end
       if return_not_handle then
 	 return YEVE_NOTHANDLE
       end
@@ -207,25 +208,99 @@ function go_to_the_toilet(entity)
     statAdd(main.guy, "fun", -2)
 end
 
+function canvasCenter(canvasEntity)
+   local bed = CanvasObj.wrapp(canvasEntity)
+   local b_pos = Pos.new(bed:pos():x() + (bed:size():x() / 2),
+			 bed:pos():y() + (bed:size():y() / 2))
+
+   return b_pos
+end
+
+function duistanceObjs(obj0, obj1)
+   local obj0_p = canvasCenter(obj0)
+   local obj1_p = canvasCenter(obj1)
+   local seg_x = obj1_p:x() - obj0_p:x()
+   local seg_y = obj1_p:y() - obj0_p:y()
+
+   return math.sqrt((seg_x * seg_x) + (seg_y * seg_y))
+end
+
+function getNearObjectMask(main)
+   local guy_can = main.guy.canvas
+   local ret = 0
+   local b_pos = canvasCenter(main.bed)
+   local g_pos = canvasCenter(main.guy.canvas)
+
+   if duistanceObjs(guy_can, main.bed) < 90 then
+      ret = yOr(ret, near_bed)
+   end
+   if duistanceObjs(guy_can, main.door) < 90 then
+      ret = yOr(ret, near_door)
+   end
+   if duistanceObjs(guy_can, main.wc) < 90 then
+      ret = yOr(ret, near_wc)
+   end
+   if duistanceObjs(guy_can, main.radio) < 90 then
+      ret = yOr(ret, near_radio)
+   end
+   if duistanceObjs(guy_can, main.fridge) < 90 then
+      ret = yOr(ret, near_fridge)
+   end
+   if duistanceObjs(guy_can, main.shower) < 90 then
+      ret = yOr(ret, near_shower)
+   end
+   print(g_pos:to_string(), b_pos:to_string(), duistanceObjs(main.bed, guy_can))
+   return ret
+end
+
+function updateMainMenu2(main, mainMenu)
+   local mask = getNearObjectMask(main)
+   if main.near_objects_mask:to_int() == mask then
+      return
+   end
+   main.near_objects_mask = mask
+   cleanMenuAction(mainMenu)
+   updateMainMenu(main, mainMenu)
+end
+
+function updateMainMenu(main, mainMenu)
+   local mask = main.near_objects_mask
+
+   if (yAnd(mask, near_door) ~= 0) then
+      setMenuAction(mainMenu, "go to work", "jims.fight_time")
+      setMenuAction(mainMenu, "go shoping", "jims.shop_time")
+   end
+   setMenuAction(mainMenu, "inventory", Entity.new_func("swapToChangeCloth"))
+   if (yAnd(mask, near_bed) ~= 0) then
+      setMenuAction(mainMenu, "sleep", Entity.new_func("sleep"))
+   end
+   if (yAnd(mask, near_shower) ~= 0) then
+      setMenuAction(mainMenu, "wash yourself", Entity.new_func("wash_yourself"))
+   end
+   if (yAnd(mask, near_radio) ~= 0) then
+      setMenuAction(mainMenu, "have fun", Entity.new_func("have_fun"))
+   end
+   if (yAnd(mask, near_fridge) ~= 0) then
+      setMenuAction(mainMenu, "eat", Entity.new_func("eat"))
+   end
+   if (yAnd(mask, near_wc) ~= 0) then
+      setMenuAction(mainMenu, "go to the toilet",
+		    Entity.new_func("go_to_the_toilet"))
+   end
+   setMenuAction(mainMenu, "quit", "callNext")
+   setMenuAction(mainMenu, "save and quit", Entity.new_func("saveAndQuit"))
+end
+
 function swapToHouse(entity)
    local mainMenu = Entity.wrapp(ywCntWidgetFather(entity))
    local main = ywCntWidgetFather(mainMenu:cent())
 
-   setMenuAction(mainMenu, 0, "fight now", "jims.fight_time")
-   setMenuAction(mainMenu, 1, "inventory", Entity.new_func("swapToChangeCloth"))
-   setMenuAction(mainMenu, 2, "buy stuff", "jims.shop_time")
-   --setMenuAction(mainMenu, 3, "sleep", Entity.new_func("sleep"))
-   --setMenuAction(mainMenu, 4, "wash yourself", Entity.new_func("wash_yourself"))
-   setMenuAction(mainMenu, 3, "have fun", Entity.new_func("have_fun"))
-   setMenuAction(mainMenu, 4, "eat", Entity.new_func("eat"))
-   setMenuAction(mainMenu, 5, "go to the toilet",
-		 Entity.new_func("go_to_the_toilet"))
-   setMenuAction(mainMenu, 6, "quit", "callNext")
-   setMenuAction(mainMenu, 7, "save and quit", Entity.new_func("saveAndQuit"))
-
-   Entity.wrapp(main).guy.movable = 1
    Entity.wrapp(entity).next = Entity.wrapp(main).next
    ywReplaceEntry(main, 0, Entity.wrapp(main).mainScreen:cent())
+   main = Entity.wrapp(main)
+   main.guy.movable = 1
+   cleanMenuAction(mainMenu)
+   updateMainMenu(main, mainMenu)
    return YEVE_ACTION
 end
 
@@ -359,7 +434,6 @@ function init_room(ent, mainCanvas)
    local f = ent.furniture
 
    local idx = ent.cur_objs.bed:to_int()
-   print("bed", idx)
    ent.bed = mainCanvas:new_img(10, 65, f.bed[idx].path:to_string(),
 				f.bed[idx].rect):cent()
    idx = ent.cur_objs.fridge:to_int()
@@ -411,9 +485,12 @@ function init_room(ent, mainCanvas)
     ent.shower.stat.hygien = 50
     ent.radio.stat.fun = 50
     ent.wc.stat.bladder = 50
+    ent.near_objects_mask = getNearObjectMask(ent)
 end
 
-function setMenuAction(mainMenu, idx, text, action)
+function setMenuAction(mainMenu, text, action)
+   local idx = mainMenu.entries[0].entries:len()
+
    mainMenu.entries[0].entries[idx] = {}
    mainMenu.entries[0].entries[idx].action = action
    mainMenu.entries[0].entries[idx].text = text
@@ -468,7 +545,7 @@ function swapToFight(entity)
    -- init combat
    ywReplaceEntry(main, 0, fScreen:cent())
    cleanMenuAction(mainMenu)
-   setMenuAction(mainMenu, 0, "work", "jims.attack")
+   setMenuAction(mainMenu, "work", "jims.attack")
    jimsFSAddGuy(main, Canvas.wrapp(fScreen), widSize, badGuy)
 
    Entity.wrapp(main).guy.movable = 0
@@ -567,14 +644,14 @@ function create_jims(entity)
 
    local ret = container:new_wid()
    local mn = menu_cnt.ent.entries[0]
-   swapToHouse(mn:cent())
    init_furniture(ent)
    if ent.saved_data == nil then
       ent.saved_data = {}
    end
    init_pj(ent, mainCanvas.ent, ent.saved_data)
-   init_room(ent, mainCanvas)
    ent.guy.canvas = mainCanvas:new_obj(150, 150, basic_front_pos):cent()
+   init_room(ent, mainCanvas)
    ent.saved_data = nil
+   swapToHouse(mn:cent())
    return ret
 end
