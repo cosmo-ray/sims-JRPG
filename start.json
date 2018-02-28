@@ -22,12 +22,41 @@
             "type" : "lua"
         }
     ],
+    "start_txt" : {
+	"<type>" : "text-screen",
+	"text-align": "center",
+	"action" : "nextOnKeyDown",
+	"background" : "rgba: 255 255 255 255",
+	"text" : "read to play !
+yay !
+
+(press enter to continue)",
+	"next" : "jims:game"
+    },
+    "credit" : {
+	"<type>" : "text-screen",
+	"text-align": "center",
+	"action" : "nextOnKeyDown",
+	"background" : "rgba: 255 255 255 255",
+	"text" : "todo
+sprites from www.opengameart.org
+music from www.rengoku-teihen.com
+
+to copy past website, use a terminal and do:
+cat start.json | grep www
+yes that's a little geeky,
+but to compensate for peoples who dont know how to use a terminal
+here is a lot of hearts <3 <3 <3 <3 <3 <3
+We love you anyway",
+	"next" : "jims:main"
+    },
     "main" : {
         "<type>" : "menu",
 	"entries" : [
 	    {
-		"text" : "Play",
-		"action" : "callNext"
+		"text" : "Next Game",
+		"next" : "jims:start_txt",
+		"action" : "menuNext"
 	    },
 	    {
 		"text" : "Continue",
@@ -36,6 +65,11 @@
 	    {
 		"text" : "Full Screen",
 		"action" : "FullScreenOnOff"
+	    },
+	    {
+		"text" : "credit",
+		"next" : "jims:credit",
+		"action" : "menuNext"
 	    },
 	    {
 		"text" : "Quit",
